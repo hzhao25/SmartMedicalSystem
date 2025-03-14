@@ -66,7 +66,7 @@
           <el-menu-item index="/Layout/hosList"
             ><i class="el-icon-link"></i>医院列表</el-menu-item
           >
-          <el-menu-item index="/Layout/deptList"
+          <el-menu-item index="/Layout/department"
             ><i class="el-icon-link"></i>科室列表</el-menu-item
           >
         </el-menu-item-group>
