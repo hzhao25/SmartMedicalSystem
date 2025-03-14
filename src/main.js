@@ -8,10 +8,12 @@ import 'element-ui/lib/theme-chalk/index.css';
 //找不到路由添加
 import VueRouter from 'vue-router';
 
+
 Vue.use(axios)
 Vue.use(ElementUI);
 //找不到路由添加
 Vue.use(VueRouter)
+
 Vue.config.productionTip = false
 
 new Vue({
