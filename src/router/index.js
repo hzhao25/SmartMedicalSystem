@@ -7,6 +7,8 @@ import DepartmentList from '@/department/DepartmentList.vue'
 import PersonalInfo from '@/user/PersonalInfo.vue'
 import DoctorLayOut from '@/doctor/DoctorLayOut.vue'
 import VaccineMes from '@/vaccine/VaccineMes.vue'
+import VaccineType from '@/vaccine/VaccineType.vue'
+import appVaccineList from '@/vaccine/appVaccineList.vue'
 Vue.use(VueRouter)
 
 const router=new VueRouter({
@@ -57,6 +59,16 @@ const router=new VueRouter({
                     path:'vaccineMes',
                     name:'vaccineMes',
                     component: VaccineMes
+                },
+                {
+                    path:'vaccineType',
+                    name:'vaccineType',
+                    component: VaccineType
+                },
+                {
+                    path:'appVaccineList',
+                    name:'appVaccineList',
+                    component: appVaccineList
                 },
             ]
         },
