@@ -144,10 +144,18 @@ export default {
   methods: {
     //查询函数
     selectPage() {
+      let url;
+      let params={};
+      if(this.name){
+        url="/vaccineType/selectByName";
+        params.name=this.name;
+      }else{
+        url="/vaccineType/queryAll";
+      }
       //发送请求
       request
-        .get("/vaccineType/queryAll", {
-          params: {},
+        .get(url, {
+          params: params
         })
         .then((res) => {
           //处理响应
@@ -157,7 +165,12 @@ export default {
           } else {
             this.$message.success("查询成功");
             //将查询到的数据赋值到当前tableData中
-            this.tableData = res.list;
+            // 确保 tableData 是数组
+                if (!Array.isArray(res.list)) {
+                    this.tableData = [res.list];//只有一条数据是对象不是数组
+                } else {
+                    this.tableData = res.list;//多条数据是数组
+                }
           }
         });
     },

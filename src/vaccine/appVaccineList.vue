@@ -18,7 +18,7 @@
           </el-popconfirm>
         </el-form-item>
         <el-form-item>
-          <el-input v-model="vaccineId" placeholder="请输入可预约疫苗的编号"></el-input>
+          <el-input v-model="vaccine_id" placeholder="请输入可预约疫苗的编号"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button
@@ -91,7 +91,7 @@ export default {
   data() {
     return {
       //模糊查询表单input值
-      vaccineId: "",
+      vaccine_id: "",
       //表格数据
       tableData: [],
       ids: [], //根据id批量删除存放的容器
@@ -124,10 +124,18 @@ export default {
   methods: {
     //查询函数
     selectPage() {
+      let url;
+      let params={};
+      if(this.vaccine_id){
+        url="/appVaccine/selectByAppVaccineId",
+        params.vaccine_id=this.vaccine_id
+      }else{
+        url="/appVaccine/queryAll"
+      }
       //发送请求
       request
-        .get("/appVaccine/queryAll", {
-          params: {},
+        .get(url, {
+          params: params,
         })
         .then((res) => {
           //处理响应
@@ -136,7 +144,11 @@ export default {
             this.$message.error(res.message);
           } else {
             this.$message.success("查询成功");
-            const newTableData = res.list.map(item => {
+            let list = res.list;
+            if (!Array.isArray(list)) {
+              list = [list];
+            }
+            const newTableData = list.map(item => {
             // 假设将预约疫苗时间格式化为 "yyyy-MM-dd HH:mm:ss" 格式的字符串
             const AppDate = new Date(item.appDate.year, item.appDate.monthValue - 1, item.appDate.dayOfMonth, item.appDate.hour, item.appDate.minute, item.appDate.second);
             item.appDate = AppDate.toISOString().slice(0, 19).replace('T',' ');

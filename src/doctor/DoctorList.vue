@@ -223,7 +223,8 @@ export default {
     if (Cookies.get("user")) {
       //获取登录用户角色
       // var userJson = JSON.parse(Cookies.get("user"));
-      this.role = Cookies.get("role").role;
+      // this.role = Cookies.get("role").role;
+      this.role=Cookies.get("role")
     }
     //调用查询的函数
     this.selectPage();

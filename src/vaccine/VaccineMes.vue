@@ -154,10 +154,18 @@ export default {
   methods: {
     //查询函数
     selectPage() {
+      let url;
+      let params={};
+      if(this.name){
+        url="/vaccine/selectByName",
+        params.name=this.name
+      }else{
+        url="/vaccine/queryAll"
+      }
       //发送请求
       request
-        .get("/vaccine/queryAll", {
-          params: {},
+        .get(url, {
+          params: params,
         })
         .then((res) => {
           //处理响应
@@ -166,7 +174,11 @@ export default {
             this.$message.error(res.message);
           } else {
             this.$message.success("查询成功");
-            const newTableData = res.list.map(item => {
+            let list = res.list;
+            if (!Array.isArray(list)) {
+              list = [list];
+            }
+            const newTableData = list.map(item => {
             // 假设将 produce_time 格式化为 "yyyy-MM-dd HH:mm:ss" 格式的字符串
             const date = new Date(item.produceTime.year, item.produceTime.monthValue - 1, item.produceTime.dayOfMonth, item.produceTime.hour, item.produceTime.minute, item.produceTime.second);
             item.produceTime = date.toISOString().slice(0, 19).replace('T',' ');

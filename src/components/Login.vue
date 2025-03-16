@@ -302,9 +302,24 @@ export default {
     },
     //登录的处理函数
     doLogin() {
+      let url;
+    switch (this.roleType) {
+        case "管理员":
+            url = "/manager/loginManager";
+            break;
+        case "医生":
+            url = "/doctor/loginDoctor";
+            break;
+        case "用户":
+            url = "/user/loginUser";
+            break;
+        default:
+            this.$message.error("未知的角色类型");
+            return;
+    }
       request
       //
-        .post("/user/loginUser", this.loginForm) //第一个参数是请求地址、第二个参数提交的数据
+        .post(url, this.loginForm) //第一个参数是请求地址、第二个参数提交的数据
         //回调函数\获取服务器响应的结果
         .then((res) => {
           if (res.flag == true) {
