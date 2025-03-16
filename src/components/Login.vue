@@ -303,15 +303,19 @@ export default {
     //登录的处理函数
     doLogin() {
       let url;
+      let loginUrl;
     switch (this.roleType) {
         case "管理员":
             url = "/manager/loginManager";
+            loginUrl = "/ManagerLayOut";
             break;
         case "医生":
             url = "/doctor/loginDoctor";
+            loginUrl = "/DoctorLayOut";
             break;
         case "用户":
             url = "/user/loginUser";
+            loginUrl = "/LayOut";
             break;
         default:
             this.$message.error("未知的角色类型");
@@ -328,7 +332,7 @@ export default {
             Cookies.set("user", JSON.stringify(res.user), { expires: 0.3 });
             Cookies.set("role", res.role, { expires: 0.3 });
             //通过路由跳转、登录成功后跳转到首页
-            router.push("/DoctorLayout");//
+            router.push(loginUrl);//
           } else {
             //登录失败提示信息
             this.$message.error(res.message);
