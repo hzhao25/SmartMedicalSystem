@@ -328,7 +328,7 @@ export default {
             Cookies.set("user", JSON.stringify(res.user), { expires: 0.3 });
             Cookies.set("role", res.role, { expires: 0.3 });
             //通过路由跳转、登录成功后跳转到首页
-            router.push("/Layout");//
+            router.push("/DoctorLayout");//
           } else {
             //登录失败提示信息
             this.$message.error(res.message);
