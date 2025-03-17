@@ -74,7 +74,7 @@ export default {
         router.push("/Login");
       } else {
         //跳转到个人信息
-        router.push("/DoctorLayout/personalInfo");
+        router.push("/DoctorLayout/DoctorPersonalInfo");
       }
     },
   },

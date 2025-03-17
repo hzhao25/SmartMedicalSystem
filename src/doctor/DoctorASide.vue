@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-menu
-      style="width: 250px; min-height: calc(100vh - 50px);padding-top: 10px;"
+      style="width: 250px; min-height: calc(100vh - 50px); padding-top: 10px"
       default-active="2"
       class="el-menu-vertical-demo"
       @open="handleOpen"
@@ -13,7 +13,9 @@
         <template slot="title">
           <i class="el-icon-s-management"></i>
           <!-- font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;" -->
-          <span style="font-size: 17px; font-weight: bold;font-family:'苹方'">管理员模块</span>
+          <span style="font-size: 17px; font-weight: bold; font-family: '苹方'"
+            >管理员模块</span
+          >
         </template>
         <el-menu-item-group>
           <el-menu-item index="/DoctorLayout/adminList"
@@ -24,7 +26,9 @@
       <el-submenu index="2">
         <template slot="title">
           <i class="el-icon-first-aid-kit"></i>
-          <span style="font-size: 17px; font-weight: bold;font-family:'苹方'">医生模块</span>
+          <span style="font-size: 17px; font-weight: bold; font-family: '苹方'"
+            >医生模块</span
+          >
         </template>
         <el-menu-item-group>
           <!-- <i class="icon_line"></i> -->
@@ -36,7 +40,12 @@
             v-if="role == 'manager' || role == 'doctor' || role == 'user'"
             ><i class="el-icon-link"></i>挂号记录</el-menu-item
           >
-          <el-menu-item index="/DoctorLayout/vaccineRecord" v-if="role != 'doctor'"
+          <el-menu-item index="/DoctorLayout/postsList"
+            ><i class="el-icon-link"></i>问诊记录</el-menu-item
+          >
+          <el-menu-item
+            index="/DoctorLayout/vaccineRecord"
+            v-if="role != 'doctor'"
             ><i class="el-icon-link"></i>接种记录</el-menu-item
           >
         </el-menu-item-group>
@@ -45,7 +54,9 @@
       <el-submenu index="3" v-if="role == 'manager' || role == 'user'">
         <template slot="title">
           <i class="el-icon-user"></i>
-          <span style="font-size: 17px; font-weight: bold;font-family:'苹方'">用户模块</span>
+          <span style="font-size: 17px; font-weight: bold; font-family: '苹方'"
+            >用户模块</span
+          >
         </template>
         <el-menu-item-group>
           <el-menu-item index="/DoctorLayout/userList" v-if="role == 'manager'"
@@ -60,10 +71,12 @@
       <el-submenu index="4">
         <template slot="title">
           <i class="el-icon-office-building"></i>
-          <span style="font-size: 17px; font-weight: bold;font-family:'苹方'">医院模块</span>
+          <span style="font-size: 17px; font-weight: bold; font-family: '苹方'"
+            >医院模块</span
+          >
         </template>
         <el-menu-item-group>
-          <el-menu-item index="/DoctorLayout/hosList"
+          <el-menu-item index="/DoctorLayout/hospitalList"
             ><i class="el-icon-link"></i>医院列表</el-menu-item
           >
           <el-menu-item index="/DoctorLayout/department"
@@ -74,7 +87,9 @@
       <el-submenu index="5">
         <template slot="title">
           <i class="el-icon-office-building"></i>
-          <span style="font-size: 17px; font-weight: bold;font-family:'苹方'">疫苗模块</span>
+          <span style="font-size: 17px; font-weight: bold; font-family: '苹方'"
+            >疫苗模块</span
+          >
         </template>
         <el-menu-item-group>
           <el-menu-item index="/DoctorLayout/vaccineType"
@@ -85,6 +100,9 @@
           >
           <el-menu-item index="/DoctorLayout/appVaccineList"
             ><i class="el-icon-link"></i>可预约疫苗</el-menu-item
+          >
+          <el-menu-item index="/DoctorLayout/nucleicAcidResult"
+            ><i class="el-icon-link"></i>核酸检测结果</el-menu-item
           >
         </el-menu-item-group>
       </el-submenu>
@@ -130,7 +148,7 @@ export default {
     //获取manager信息
     var userJson = JSON.parse(Cookies.get("user"));
     this.role = Cookies.get("role");
-    console.log("this.role="+this.role);
+    console.log("this.role=" + this.role);
     this.userId = userJson.id;
     // 启动定时器，每5秒钟检查一次
     this.timer = setInterval(this.checkDatabaseChanges, 5000);

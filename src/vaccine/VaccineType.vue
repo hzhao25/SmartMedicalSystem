@@ -161,7 +161,8 @@ export default {
           //处理响应
           if (res.flag == false) {
             //查询失败
-            this.$message.error(res.message);
+            // this.$message.error(res.message);
+            this.$message.error("查询失败");
           } else {
             this.$message.success("查询成功");
             //将查询到的数据赋值到当前tableData中

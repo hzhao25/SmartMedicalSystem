@@ -5,10 +5,15 @@ import Login from '@/components/Login.vue'
 import DoctorList from '@/doctor/DoctorList.vue'
 import DepartmentList from '@/department/DepartmentList.vue'
 import PersonalInfo from '@/user/PersonalInfo.vue'
+import DoctorPersonalInfo from '@/doctor/DoctorPersonalInfo.vue'
+import ManagerPersonalInfo from '@/manager/ManagerPersonalInfo.vue'
 import DoctorLayOut from '@/doctor/DoctorLayOut.vue'
 import VaccineMes from '@/vaccine/VaccineMes.vue'
 import VaccineType from '@/vaccine/VaccineType.vue'
 import appVaccineList from '@/vaccine/appVaccineList.vue'
+import ManagerLayOut from '@/manager/ManagerLayOut.vue'
+import HospitalList from '@/hospital/HostList.vue'
+import PostsList from '@/posts/PostsList.vue'
 Vue.use(VueRouter)
 
 const router=new VueRouter({
@@ -51,9 +56,9 @@ const router=new VueRouter({
                     component: DepartmentList
                 },
                 {
-                    path:'personalInfo',
-                    name:'personalInfo',
-                    component: PersonalInfo
+                    path:'DoctorPersonalInfo',
+                    name:'DoctorPersonalInfo',
+                    component: DoctorPersonalInfo
                 },
                 {
                     path:'vaccineMes',
@@ -70,6 +75,59 @@ const router=new VueRouter({
                     name:'appVaccineList',
                     component: appVaccineList
                 },
+                {
+                    path:'hospitalList',
+                    component: HospitalList
+                },
+                {
+                    path:'postsList',
+                    component:PostsList
+                }
+            ]
+        },
+        {
+            path:'/ManagerLayout',
+            name:'ManagerLayout',
+            component:ManagerLayOut,
+            children:[
+                {
+                    path:'doctorlist',
+                    name:'doctorlist',
+                    component: DoctorList
+                },
+                {
+                    path:'department',
+                    name:'department',
+                    component: DepartmentList
+                },
+                {
+                    path:'vaccineMes',
+                    name:'vaccineMes',
+                    component: VaccineMes
+                },
+                {
+                    path:'vaccineType',
+                    name:'vaccineType',
+                    component: VaccineType
+                },
+                {
+                    path:'appVaccineList',
+                    name:'appVaccineList',
+                    component: appVaccineList
+                },
+                {
+                    path:'ManagerPersonalInfo',
+                    name:'ManagerPersonalInfo',
+                    component: ManagerPersonalInfo
+                },
+                {
+                    path:'hospitalList',
+                    component: HospitalList
+                },
+                {
+                    path:'postsList',
+                    component:PostsList
+                }
             ]
         },
         {
