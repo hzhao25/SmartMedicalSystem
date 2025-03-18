@@ -8,7 +8,7 @@
         class="demo-form-inline"
         style="padding-top: 22px"
       >
-        <el-form-item v-if="role == 'manager' || role == 'doctor'">
+        <el-form-item v-if="role == 'manager'">
           <el-popconfirm
             title="删除后无法恢复，确定吗？"
             icon-color="red"
@@ -35,11 +35,11 @@
           >
         </el-form-item>
         <!--批量删除、新增按钮-->
-        <el-form-item v-if="role == 'manager' || role == 'doctor'">
+        <el-form-item v-if="role == 'manager'">
           <el-button
             style="background-color: #254175"
             type="primary"
-            @click="showAddForm"
+            @click="clearForm"
             >新增</el-button
           >
         </el-form-item>
@@ -53,7 +53,7 @@
         <el-table-column
           type="selection"
           width="55"
-          v-if="role == 'manager' || role == 'doctor'"
+          v-if="role == 'manager'"
         ></el-table-column>
         <el-table-column prop="id" label="问诊记录编号" sortable>
         </el-table-column>
@@ -95,7 +95,7 @@
         <el-table-column
           prop="status"
           label="状态"
-          v-if="role == 'manager' || role == 'doctor'"
+          v-if="role == 'manager'"
           sortable
         >
           <template #default="scope">
@@ -103,10 +103,7 @@
             <el-tag type="danger" v-if="scope.row.status == 0">禁用</el-tag>
           </template>
         </el-table-column>
-        <el-table-column
-          label="操作"
-          v-if="role == 'manager' || role == 'doctor'"
-        >
+        <el-table-column label="操作" v-if="role == 'manager'">
           <template #default="scope">
             <el-button
               size="small"
@@ -124,10 +121,7 @@
             >
           </template>
         </el-table-column>
-        <el-table-column
-          label="操作"
-          v-if="role == 'manager' || role == 'doctor'"
-        >
+        <el-table-column label="操作" v-if="role == 'manager'">
           <template #default="scope">
             <el-button size="small" @click="handleEdit(scope.$index, scope.row)"
               >修改</el-button
@@ -145,38 +139,12 @@
         </el-table-column>
       </el-table>
     </div>
-    <!-- 新增表单弹窗 -->
-    <el-dialog :visible.sync="addFormVisible" title="添加问诊记录">
-      <el-form :model="posts" ref="addForm">
-        <el-form-item label="问诊记录内容">
-          <el-input v-model="posts.postsContent"></el-input>
-        </el-form-item>
-        <el-form-item label="病症图">
-          <el-input v-model="posts.postsImage"></el-input>
-        </el-form-item>
-        <el-form-item label="医生编号">
-          <el-input v-model="posts.publisher"></el-input>
-        </el-form-item>
-        <el-form-item label="相应挂号贴编号">
-          <el-input v-model="posts.registrationId"></el-input>
-        </el-form-item>
-        <el-form-item label="发布人类型">
-          <el-select v-model="posts.publisherType">
-            <el-option label="医生" value="0"></el-option>
-            <el-option label="用户" value="1"></el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="addFormVisible = false">取消</el-button>
-          <el-button type="primary" @click="addRecord">确定</el-button>
-        </span>
-      </template>
-    </el-dialog>
+
+
   </div>
 </template>
 
+<!-- js代码 -->
 <script>
 //导入request工具
 import request from "@/utils/request";
@@ -192,7 +160,7 @@ export default {
       //表格数据
       tableData: [],
       ids: [], //根据id批量删除存放的容器
-      posts: {
+      doctor: {
         id: 0,
         postsContent: "",
         postsImage: "",
@@ -214,6 +182,7 @@ export default {
     if (Cookies.get("user")) {
       //获取登录用户角色
       this.userJson = JSON.parse(Cookies.get("user"));
+      // this.role = Cookies.get("role").role;
       this.role = Cookies.get("role");
     }
     //调用查询的函数
@@ -234,10 +203,10 @@ export default {
         let params = {};
         var doctorId = this.userJson.id;
         if (this.registrationId) {
-          url = "/posts/selectByRegistrationId",
-          params.registrationId = this.registrationId;
+          (url = "/posts/selectByRegistrationId"),
+            (params.registrationId = this.registrationId);
           params.publisher = doctorId;
-        } else {
+        } else{
           (url = "/posts/selectByPublisherId"), (params.publisher = doctorId);
         }
         //发送请求
@@ -249,6 +218,7 @@ export default {
             //处理响应
             if (res.flag == false) {
               //查询失败
+              // this.$message.error(res.message);
               this.$message.error("查询失败");
             } else {
               this.$message.success("查询成功");
@@ -294,6 +264,7 @@ export default {
             //处理响应
             if (res.flag == false) {
               //查询失败
+              // this.$message.error(res.message);
               this.$message.error("查询失败");
             } else {
               this.$message.success("查询成功");
@@ -322,36 +293,6 @@ export default {
             }
           });
       }
-    },
-    // 显示新增表单弹窗
-    showAddForm() {
-      this.posts = {
-        id: 0,
-        postsContent: "",
-        postsImage: "",
-        createTime: "",
-        publisher: "",
-        registrationId: "",
-        publisherType: "",
-      };
-      this.addFormVisible = true;
-    },
-    // 新增记录
-    addRecord() {
-      request
-        .post("/posts/managerAddPosts", this.posts)
-        .then((res) => {
-          if (res.flag) {
-            this.$message.success("新增成功");
-            this.addFormVisible = false;
-            this.selectPage(); // 重新查询数据
-          } else {
-            this.$message.error("新增失败");
-          }
-        })
-        .catch((error) => {
-          this.$message.error("新增出错：" + error.message);
-        });
     },
   },
 };

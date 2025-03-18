@@ -36,7 +36,7 @@
             ><i class="el-icon-link"></i> 医生列表</el-menu-item
           >
           <el-menu-item
-            index="/DoctorLayout/registration"
+            index="/DoctorLayout/registrationList"
             v-if="role == 'manager' || role == 'doctor' || role == 'user'"
             ><i class="el-icon-link"></i>挂号记录</el-menu-item
           >
