@@ -307,15 +307,15 @@ export default {
     switch (this.roleType) {
         case "管理员":
             url = "/manager/loginManager";
-            loginUrl = "/ManagerLayOut";
+            loginUrl = "/ManagerLayout";
             break;
         case "医生":
             url = "/doctor/loginDoctor";
-            loginUrl = "/DoctorLayOut";
+            loginUrl = "/DoctorLayout";
             break;
         case "用户":
             url = "/user/loginUser";
-            loginUrl = "/LayOut";
+            loginUrl = "/Layout";
             break;
         default:
             this.$message.error("未知的角色类型");

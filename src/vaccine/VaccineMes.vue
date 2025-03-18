@@ -146,7 +146,7 @@ export default {
     if (Cookies.get("user")) {
       //获取登录用户角色
     //   var userJson = JSON.parse(Cookies.get("user"));
-      this.role = Cookies.get("role").role;
+      this.role = Cookies.get("role");
     }
     //调用查询的函数
     this.selectPage();
@@ -171,7 +171,8 @@ export default {
           //处理响应
           if (res.flag == false) {
             //查询失败
-            this.$message.error(res.message);
+            // this.$message.error(res.message);
+            this.$message.error("查询失败");
           } else {
             this.$message.success("查询成功");
             let list = res.list;

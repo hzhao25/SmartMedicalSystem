@@ -18,7 +18,7 @@
           </el-popconfirm>
         </el-form-item>
         <el-form-item>
-          <el-input v-model="vaccine_id" placeholder="请输入可预约疫苗的编号"></el-input>
+          <el-input v-model="name" placeholder="请输入医院名"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button
@@ -41,7 +41,7 @@
     </div>
     <!-- 下半部分 -->
     <div class="botoom_div">
-      <!-- 医生信息展示表格   绑定了tableData的数据 -->
+      <!-- 医院信息展示表格   绑定了tableData的数据 -->
       <el-table
         :data="tableData"
         style="width: 100%"
@@ -53,13 +53,12 @@
           v-if="role == 'manager'"
         ></el-table-column>
         <!-- 表格列名 -->
-        <el-table-column prop="id" label="排序编号"> </el-table-column>
-        <el-table-column prop="vaccineId" label="可预约疫苗编号" sortable> </el-table-column>
-        <el-table-column prop="nums" label="可接种数量"> </el-table-column>
-        <el-table-column prop="appedNums" label="已预约数量"> </el-table-column>
-        <el-table-column prop="address" label="接种医院地址"> </el-table-column>
-        <el-table-column prop="appDate" label="预约接种时间"> </el-table-column>
-        <el-table-column prop="createTime" label="接种完成时间"> </el-table-column>
+        <el-table-column prop="id" label="医院编号" sortable> </el-table-column>
+        <el-table-column prop="name" label="医院名称"> </el-table-column>
+        <el-table-column prop="address" label="医院地址"> </el-table-column>
+        <el-table-column prop="phone" label="医院联系电话"> </el-table-column>
+        <el-table-column prop="remark" label="医院评价"> </el-table-column>
+        <el-table-column prop="createTime" label="建立时间"> </el-table-column>
         <el-table-column label="操作" v-if="role == 'manager'">
           <template #default="scope">
             <el-button size="small" @click="handleEdit(scope.$index, scope.row)"
@@ -91,17 +90,16 @@ export default {
   data() {
     return {
       //模糊查询表单input值
-      vaccine_id: "",
+      name: "",
       //表格数据
       tableData: [],
       ids: [], //根据id批量删除存放的容器
-      appointmentVaccine: {
+      hospital: {
         id: 0,
-        vaccineId: "",
-        nums: "",
-        appedNums: "",
+        name: "",
         address: "",
-        appDate: "",
+        phone: "",
+        remark: "",
         createTime: "",
       },
       updateFormVisible: false,
@@ -126,11 +124,11 @@ export default {
     selectPage() {
       let url;
       let params={};
-      if(this.vaccine_id){
-        url="/appVaccine/selectByAppVaccineId",
-        params.vaccine_id=this.vaccine_id
+      if(this.name){
+        url="/hospital/selectByHospitalName",
+        params.name=this.name
       }else{
-        url="/appVaccine/queryAll"
+        url="/hospital/queryAll"
       }
       //发送请求
       request
@@ -141,8 +139,8 @@ export default {
           //处理响应
           if (res.flag == false) {
             //查询失败
-            // this.$message.error(res.message);
             this.$message.error("查询失败");
+            // this.$message.error(res.message);
           } else {
             this.$message.success("查询成功");
             let list = res.list;
@@ -151,9 +149,6 @@ export default {
             }
             const newTableData = list.map(item => {
             // 假设将预约疫苗时间格式化为 "yyyy-MM-dd HH:mm:ss" 格式的字符串
-            const AppDate = new Date(item.appDate.year, item.appDate.monthValue - 1, item.appDate.dayOfMonth, item.appDate.hour, item.appDate.minute, item.appDate.second);
-            item.appDate = AppDate.toISOString().slice(0, 19).replace('T',' ');
-
             const CreateTime = new Date(item.createTime.year, item.createTime.monthValue - 1, item.createTime.dayOfMonth, item.createTime.hour, item.createTime.minute, item.createTime.second);
             item.createTime = CreateTime.toISOString().slice(0, 19).replace('T',' ');
             return item;
