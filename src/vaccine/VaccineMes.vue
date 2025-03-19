@@ -219,6 +219,7 @@ export default {
         adverseReaction: "",
         producer: "",
         produceTime: "",
+        status:"",
       },
       updatePosts: {
         id: 0,
@@ -229,6 +230,7 @@ export default {
         adverseReaction: "",
         producer: "",
         produceTime: "",
+        status:"",
       },
       updateFormVisible: false,
       addFormVisible: false,
@@ -316,7 +318,8 @@ export default {
         target: row.target,
         adverseReaction: row.adverseReaction,
         producer: row.producer,
-        produceTime: row.produceTime
+        produceTime: row.produceTime,
+        status: row.status,
       };
       this.updateFormVisible = true;
     },
