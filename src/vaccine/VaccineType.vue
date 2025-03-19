@@ -175,6 +175,39 @@ export default {
           }
         });
     },
+
+        // 更新医生状态的方法
+    updateStatus(row) {
+      // 根据当前状态确定要更新的目标状态
+      const newStatus = row.status === 1 ? 0 : 1;
+      const managerId = row.id;
+      // 发送请求更新状态
+      request
+        .post("/vaccineType/updateStatus", {
+          id: managerId,
+          status: Number(newStatus),
+        })
+        .then((res) => {
+          if (res.flag) {
+            // 更新成功，给出提示并更新表格数据
+            this.$message.success(newStatus === 1 ? "激活成功" : "禁用成功");
+            // 找到表格中对应的数据并更新状态
+            const targetIndex = this.tableData.findIndex(
+              (item) => item.id === managerId
+            );
+            if (targetIndex !== -1) {
+              this.tableData[targetIndex].status = newStatus; //更新医生状态
+            }
+          } else {
+            // 更新失败，给出提示
+            this.$message.error(newStatus === 1 ? "激活失败" : "禁用失败");
+          }
+        })
+        .catch((error) => {
+          // 请求出错，给出提示
+          this.$message.error("更新状态出错：" + error.message);
+        });
+    },
   },
 };
 </script>

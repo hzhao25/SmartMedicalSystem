@@ -18,7 +18,10 @@
           </el-popconfirm>
         </el-form-item>
         <el-form-item>
-          <el-input v-model="name" placeholder="请输入疫苗名称"></el-input>
+          <el-input
+            v-model="name"
+            placeholder="请输入管理员名关键字"
+          ></el-input>
         </el-form-item>
         <el-form-item>
           <el-button
@@ -42,29 +45,34 @@
     <!-- 下半部分 -->
     <div class="botoom_div">
       <!-- 医生信息展示表格   绑定了tableData的数据 -->
-      <el-table
-        :data="tableData"
-        style="width: 100%"
-        @selection-change="handleSelectionChange"
-      >
+      <el-table :data="tableData" style="width: 100%" @selection-change="handleSelectionChange">
         <!-- 复选框 -->
         <el-table-column
           type="selection"
           width="55"
           v-if="role == 'manager'"
         ></el-table-column>
-        <el-table-column prop="id" label="疫苗编号"> </el-table-column>
-        <el-table-column prop="name" label="疫苗名称" sortable>
+        <el-table-column prop="id" label="管理员编号" sortable>
         </el-table-column>
-        <el-table-column prop="typeId" label="疫苗种类"> </el-table-column>
-        <el-table-column prop="function" label="疫苗作用" width="180px">
+        <el-table-column prop="image" label="头像" align="center">
+          <template #default="scope">
+            <el-image
+              style="
+                width: auto;
+                height: 40px;
+                border: none;
+                cursor: pointer;
+                border-radius: 50%;
+              "
+              :src="scope.row.image"
+              :preview-src-list="[scope.row.image]"
+            >
+            </el-image>
+          </template>
         </el-table-column>
-        <el-table-column prop="target" label="疫苗目标人群"> </el-table-column>
-        <el-table-column prop="adverseReaction" label="疫苗的不良反应">
+        <el-table-column prop="name" label="管理员名" width="180px">
         </el-table-column>
-        <el-table-column prop="producer" label="疫苗生产厂家">
-        </el-table-column>
-        <el-table-column prop="produceTime" label="疫苗生产时间">
+        <el-table-column prop="createDate" label="创建管理员用户时间">
         </el-table-column>
         <el-table-column
           prop="status"
@@ -114,25 +122,16 @@
       </el-table>
     </div>
     <!-- 新增表单弹窗 -->
-    <el-dialog :visible.sync="addFormVisible" title="添加疫苗信息">
+    <el-dialog :visible.sync="addFormVisible" title="添加管理员信息">
       <el-form :model="addPosts" ref="addForm">
-        <el-form-item label="疫苗名">
+        <el-form-item label="用户名">
           <el-input v-model="addPosts.name"></el-input>
         </el-form-item>
-        <el-form-item label="疫苗种类编号">
-          <el-input v-model="addPosts.typeId"></el-input>
+        <el-form-item label="密码">
+          <el-input v-model="addPosts.password"></el-input>
         </el-form-item>
-        <el-form-item label="功能">
-          <el-input v-model="addPosts.function"></el-input>
-        </el-form-item>
-        <el-form-item label="目标群体">
-          <el-input v-model="addPosts.target"></el-input>
-        </el-form-item>
-        <el-form-item label="不良反应">
-          <el-input v-model="addPosts.adverseReaction"></el-input>
-        </el-form-item>
-        <el-form-item label="制造商">
-          <el-input v-model="addPosts.producer"></el-input>
+        <el-form-item label="头像">
+          <el-input v-model="addPosts.image"></el-input>
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="addPosts.status">
@@ -150,25 +149,16 @@
     </el-dialog>
 
     <!-- 修改表单弹窗 -->
-    <el-dialog :visible.sync="updateFormVisible" title="修改疫苗信息">
+    <el-dialog :visible.sync="updateFormVisible" title="修改管理员信息">
       <el-form :model="updatePosts" ref="updateForm">
-        <el-form-item label="疫苗名">
+        <el-form-item label="用户名">
           <el-input v-model="updatePosts.name"></el-input>
         </el-form-item>
-        <el-form-item label="疫苗种类编号">
-          <el-input v-model="updatePosts.typeId"></el-input>
+        <el-form-item label="密码">
+          <el-input v-model="updatePosts.password"></el-input>
         </el-form-item>
-        <el-form-item label="功能">
-          <el-input v-model="updatePosts.function"></el-input>
-        </el-form-item>
-        <el-form-item label="目标群体">
-          <el-input v-model="updatePosts.target"></el-input>
-        </el-form-item>
-        <el-form-item label="不良反应">
-          <el-input v-model="updatePosts.adverseReaction"></el-input>
-        </el-form-item>
-        <el-form-item label="制造商">
-          <el-input v-model="updatePosts.producer"></el-input>
+        <el-form-item label="头像">
+          <el-input v-model="updatePosts.image"></el-input>
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="updatePosts.status">
@@ -195,40 +185,36 @@ import Cookies from "js-cookie";
 export default {
   data() {
     return {
+      imageUrl: "", //头像上传路径
       //模糊查询表单input值
       name: "",
       //表格数据
       tableData: [],
       ids: [], //根据id批量删除存放的容器
-      vaccine: {
+      status: "",
+      manager: {
         id: 0,
         name: "",
-        typeId: "",
-        function: "",
-        target: "",
-        adverseReaction: "",
-        producer: "",
-        produceTime: "",
+        password: "",
+        image: "", //头像文件名
+        createDate: "",
+        status: "",
       },
       addPosts: {
         id: 0,
         name: "",
-        typeId: "",
-        function: "",
-        target: "",
-        adverseReaction: "",
-        producer: "",
-        produceTime: "",
+        password: "",
+        createDate: "",
+        image: "",
+        status: "",
       },
       updatePosts: {
         id: 0,
         name: "",
-        typeId: "",
-        function: "",
-        target: "",
-        adverseReaction: "",
-        producer: "",
-        produceTime: "",
+        password: "",
+        createDate: "",
+        image: "",
+        status: "",
       },
       updateFormVisible: false,
       addFormVisible: false,
@@ -241,7 +227,8 @@ export default {
   created() {
     if (Cookies.get("user")) {
       //获取登录用户角色
-      //   var userJson = JSON.parse(Cookies.get("user"));
+      // var userJson = JSON.parse(Cookies.get("user"));
+      // this.role = Cookies.get("role").role;
       this.role = Cookies.get("role");
     }
     //调用查询的函数
@@ -251,17 +238,17 @@ export default {
     // 单个删除
     handleDelete(index, row) {
       request
-        .post("/vaccine/deleteVaccine", { id: row.id })
+        .post("/manager/deleteManager", { id: row.id })
         .then((res) => {
           if (res.flag) {
-            this.$message.success("删除疫苗信息成功");
+            this.$message.success("删除管理员信息成功");
             this.selectPage(); //重新查询数据
           } else {
-            this.$message.error("删除疫苗信息失败");
+            this.$message.error("删除管理员信息失败");
           }
         })
         .catch((error) => {
-          this.$message.error("删除疫苗信息出错：" + error.message);
+          this.$message.error("删除管理员信息出错：" + error.message);
         });
     },
 
@@ -281,19 +268,19 @@ export default {
       const data = { ids: this.ids };
       console.log(data)
       request
-        .post("/vaccine/deleteBatchVaccine", data, {
+        .post("/manager/deleteBatchManager", data, {
           jsonRequest: true,
         })
         .then((res) => {
           if (res.flag) {
-            this.$message.success("批量删除疫苗信息成功");
+            this.$message.success("批量删除管理员信息成功");
             this.selectPage();
           } else {
-            this.$message.error("批量删除疫苗信息失败");
+            this.$message.error("批量删除管理员信息失败");
           }
         })
         .catch((error) => {
-          this.$message.error("批量删除疫苗信息出错：" + error.message);
+          this.$message.error("批量删除管理员信息出错：" + error.message);
         });
     },
 
@@ -311,60 +298,57 @@ export default {
       this.updatePosts = {
         id: row.id,
         name: row.name,
-        typeId: row.typeId,
-        function: row.function,
-        target: row.target,
-        adverseReaction: row.adverseReaction,
-        producer: row.producer,
-        produceTime: row.produceTime
+        password: row.password,
+        createDate: row.createDate,
+        image: row.image,
+        status: row.status,
       };
       this.updateFormVisible = true;
     },
     // 修改记录
     updateRecord() {
       request
-        .post("/vaccine/updateVaccine", this.updatePosts)
+        .post("/manager/updateManager", this.updatePosts)
         .then((res) => {
           if (res.flag) {
-            this.$message.success("修改疫苗信息成功");
+            this.$message.success("修改管理员信息成功");
             this.updateFormVisible = false;
             this.selectPage(); // 重新查询数据
           } else {
-            this.$message.error("修改疫苗信息失败");
+            this.$message.error("修改管理员信息失败");
           }
         })
         .catch((error) => {
-          this.$message.error("修改疫苗信息出错：" + error.message);
+          this.$message.error("修改管理员信息出错：" + error.message);
         });
     },
     // 显示新增表单弹窗
     showAddForm() {
       this.addPosts = {
+        id: "",
         name: "",
-        typeId: "",
-        function: "",
-        target: "",
-        adverseReaction: "",
-        producer: "",
+        password: "",
+        image: "",
+        status: "",
       };
       this.addFormVisible = true;
     },
         // 新增记录
     addRecord() {
         request
-          .post("/vaccine/managerAddVaccine", this.addPosts)
+          .post("/manager/managerAddManager", this.addPosts)
           .then((res) => {
             if (res.flag) {
-              this.$message.success("添加疫苗信息成功");
+              this.$message.success("添加管理员信息成功");
               this.addFormVisible = false;
               this.selectPage(); // 重新查询数据
             } else {
-              this.$message.error("添加疫苗信息失败");
+              this.$message.error("添加管理员信息失败");
               this.addFormVisible = true;
             }
           })
           .catch((error) => {
-            this.$message.error("添加疫苗信息出错：" + error.message);
+            this.$message.error("添加管理员信息出错：" + error.message);
           });
       },
     //查询函数
@@ -372,9 +356,9 @@ export default {
       let url;
       let params = {};
       if (this.name) {
-        (url = "/vaccine/selectByName"), (params.name = this.name);
+        (url = "/manager/selectByName"), (params.name = this.name);
       } else {
-        url = "/vaccine/queryAll";
+        url = "/manager/queryAll";
       }
       //发送请求
       request
@@ -396,14 +380,14 @@ export default {
             const newTableData = list.map((item) => {
               // 假设将 produce_time 格式化为 "yyyy-MM-dd HH:mm:ss" 格式的字符串
               const date = new Date(
-                item.produceTime.year,
-                item.produceTime.monthValue - 1,
-                item.produceTime.dayOfMonth,
-                item.produceTime.hour,
-                item.produceTime.minute,
-                item.produceTime.second
+                item.createDate.year,
+                item.createDate.monthValue - 1,
+                item.createDate.dayOfMonth,
+                item.createDate.hour,
+                item.createDate.minute,
+                item.createDate.second
               );
-              item.produceTime = date
+              item.createDate = date
                 .toISOString()
                 .slice(0, 19)
                 .replace("T", " ");
@@ -414,6 +398,7 @@ export default {
           }
         });
     },
+
     // 更新医生状态的方法
     updateStatus(row) {
       // 根据当前状态确定要更新的目标状态
@@ -421,7 +406,7 @@ export default {
       const managerId = row.id;
       // 发送请求更新状态
       request
-        .post("/vaccine/updateStatus", {
+        .post("/manager/updateStatus", {
           id: managerId,
           status: Number(newStatus),
         })

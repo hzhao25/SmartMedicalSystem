@@ -42,10 +42,7 @@
     <!-- 下半部分 -->
     <div class="botoom_div">
       <!-- 医院信息展示表格   绑定了tableData的数据 -->
-      <el-table
-        :data="tableData"
-        style="width: 100%"
-      >
+      <el-table :data="tableData" style="width: 100%">
         <!-- 复选框 -->
         <el-table-column
           type="selection"
@@ -59,6 +56,35 @@
         <el-table-column prop="phone" label="医院联系电话"> </el-table-column>
         <el-table-column prop="remark" label="医院评价"> </el-table-column>
         <el-table-column prop="createTime" label="建立时间"> </el-table-column>
+        <el-table-column
+          prop="status"
+          label="状态"
+          v-if="role == 'manager'"
+          sortable
+        >
+          <template #default="scope">
+            <el-tag type="success" v-if="scope.row.status == 1">正常</el-tag>
+            <el-tag type="danger" v-if="scope.row.status == 0">禁用</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" v-if="role == 'manager'">
+          <template #default="scope">
+            <el-button
+              size="small"
+              v-if="scope.row.status == 1"
+              type="danger"
+              @click="updateStatus(scope.row)"
+              >禁用</el-button
+            >
+            <el-button
+              size="small"
+              v-if="scope.row.status == 0"
+              type="success"
+              @click="updateStatus(scope.row)"
+              >激活</el-button
+            >
+          </template>
+        </el-table-column>
         <el-table-column label="操作" v-if="role == 'manager'">
           <template #default="scope">
             <el-button size="small" @click="handleEdit(scope.$index, scope.row)"
@@ -76,7 +102,6 @@
           </template>
         </el-table-column>
       </el-table>
-      
     </div>
   </div>
 </template>
@@ -123,12 +148,11 @@ export default {
     //查询函数
     selectPage() {
       let url;
-      let params={};
-      if(this.name){
-        url="/hospital/selectByHospitalName",
-        params.name=this.name
-      }else{
-        url="/hospital/queryAll"
+      let params = {};
+      if (this.name) {
+        (url = "/hospital/selectByHospitalName"), (params.name = this.name);
+      } else {
+        url = "/hospital/queryAll";
       }
       //发送请求
       request
@@ -147,15 +171,57 @@ export default {
             if (!Array.isArray(list)) {
               list = [list];
             }
-            const newTableData = list.map(item => {
-            // 假设将预约疫苗时间格式化为 "yyyy-MM-dd HH:mm:ss" 格式的字符串
-            const CreateTime = new Date(item.createTime.year, item.createTime.monthValue - 1, item.createTime.dayOfMonth, item.createTime.hour, item.createTime.minute, item.createTime.second);
-            item.createTime = CreateTime.toISOString().slice(0, 19).replace('T',' ');
-            return item;
+            const newTableData = list.map((item) => {
+              // 假设将预约疫苗时间格式化为 "yyyy-MM-dd HH:mm:ss" 格式的字符串
+              const CreateTime = new Date(
+                item.createTime.year,
+                item.createTime.monthValue - 1,
+                item.createTime.dayOfMonth,
+                item.createTime.hour,
+                item.createTime.minute,
+                item.createTime.second
+              );
+              item.createTime = CreateTime.toISOString()
+                .slice(0, 19)
+                .replace("T", " ");
+              return item;
             });
             //将查询到的数据赋值到当前tableData中
             this.tableData = newTableData;
           }
+        });
+    },
+
+    // 更新医生状态的方法
+    updateStatus(row) {
+      // 根据当前状态确定要更新的目标状态
+      const newStatus = row.status === 1 ? 0 : 1;
+      const managerId = row.id;
+      // 发送请求更新状态
+      request
+        .post("/hospital/updateStatus", {
+          id: managerId,
+          status: Number(newStatus),
+        })
+        .then((res) => {
+          if (res.flag) {
+            // 更新成功，给出提示并更新表格数据
+            this.$message.success(newStatus === 1 ? "激活成功" : "禁用成功");
+            // 找到表格中对应的数据并更新状态
+            const targetIndex = this.tableData.findIndex(
+              (item) => item.id === managerId
+            );
+            if (targetIndex !== -1) {
+              this.tableData[targetIndex].status = newStatus; //更新医生状态
+            }
+          } else {
+            // 更新失败，给出提示
+            this.$message.error(newStatus === 1 ? "激活失败" : "禁用失败");
+          }
+        })
+        .catch((error) => {
+          // 请求出错，给出提示
+          this.$message.error("更新状态出错：" + error.message);
         });
     },
   },

@@ -48,7 +48,11 @@
     <!-- 下半部分 -->
     <div class="botoom_div">
       <!-- 医生信息展示表格   绑定了tableData的数据 -->
-      <el-table :data="tableData" style="width: 100%">
+      <el-table
+        :data="tableData"
+        style="width: 100%"
+        @selection-change="handleSelectionChange"
+      >
         <!-- 复选框 -->
         <el-table-column
           type="selection"
@@ -93,38 +97,6 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="status"
-          label="状态"
-          v-if="role == 'manager' || role == 'doctor'"
-          sortable
-        >
-          <template #default="scope">
-            <el-tag type="success" v-if="scope.row.status == 1">正常</el-tag>
-            <el-tag type="danger" v-if="scope.row.status == 0">禁用</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="操作"
-          v-if="role == 'manager' || role == 'doctor'"
-        >
-          <template #default="scope">
-            <el-button
-              size="small"
-              v-if="scope.row.status == 1"
-              type="danger"
-              @click="updateStatus(scope.row)"
-              >禁用</el-button
-            >
-            <el-button
-              size="small"
-              v-if="scope.row.status == 0"
-              type="success"
-              @click="updateStatus(scope.row)"
-              >激活</el-button
-            >
-          </template>
-        </el-table-column>
-        <el-table-column
           label="操作"
           v-if="role == 'manager' || role == 'doctor'"
         >
@@ -147,21 +119,21 @@
     </div>
     <!-- 新增表单弹窗 -->
     <el-dialog :visible.sync="addFormVisible" title="添加问诊记录">
-      <el-form :model="posts" ref="addForm">
+      <el-form :model="addPosts" ref="addForm">
         <el-form-item label="问诊记录内容">
-          <el-input v-model="posts.postsContent"></el-input>
+          <el-input v-model="addPosts.postsContent"></el-input>
         </el-form-item>
         <el-form-item label="病症图">
-          <el-input v-model="posts.postsImage"></el-input>
+          <el-input v-model="addPosts.postsImage"></el-input>
         </el-form-item>
         <el-form-item label="医生编号">
-          <el-input v-model="posts.publisher"></el-input>
+          <el-input v-model="addPosts.publisher"></el-input>
         </el-form-item>
         <el-form-item label="相应挂号贴编号">
-          <el-input v-model="posts.registrationId"></el-input>
+          <el-input v-model="addPosts.registrationId"></el-input>
         </el-form-item>
         <el-form-item label="发布人类型">
-          <el-select v-model="posts.publisherType">
+          <el-select v-model="addPosts.publisherType">
             <el-option label="医生" value="0"></el-option>
             <el-option label="用户" value="1"></el-option>
           </el-select>
@@ -174,6 +146,36 @@
         </span>
       </template>
     </el-dialog>
+
+    <!-- 修改表单弹窗 -->
+    <el-dialog :visible.sync="updateFormVisible" title="修改问诊记录">
+      <el-form :model="updatePosts" ref="updateForm">
+        <el-form-item label="问诊记录内容">
+          <el-input v-model="updatePosts.postsContent"></el-input>
+        </el-form-item>
+        <el-form-item label="病症图">
+          <el-input v-model="updatePosts.postsImage"></el-input>
+        </el-form-item>
+        <el-form-item label="医生编号">
+          <el-input v-model="updatePosts.publisher"></el-input>
+        </el-form-item>
+        <el-form-item label="相应挂号贴编号">
+          <el-input v-model="updatePosts.registrationId"></el-input>
+        </el-form-item>
+        <el-form-item label="发布人类型">
+          <el-select v-model="updatePosts.publisherType">
+            <el-option label="医生" value="0"></el-option>
+            <el-option label="用户" value="1"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="updateFormVisible = false">取消</el-button>
+          <el-button type="primary" @click="updateRecord">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -181,6 +183,8 @@
 //导入request工具
 import request from "@/utils/request";
 import Cookies from "js-cookie";
+/* import axios from "axios";
+import qs from "qs"; */
 export default {
   data() {
     return {
@@ -201,12 +205,31 @@ export default {
         registrationId: "", //头像文件名
         publisherType: "",
       },
+      addPosts: {
+        id: 0,
+        postsContent: "",
+        postsImage: "",
+        createTime: "",
+        publisher: "",
+        registrationId: "",
+        publisherType: "",
+      },
+      updatePosts: {
+        id: 0,
+        postsContent: "",
+        postsImage: "",
+        createTime: "",
+        publisher: "",
+        registrationId: "",
+        publisherType: "",
+      },
       updateFormVisible: false,
       addFormVisible: false,
       currentPage: 1,
       pageSize: 5,
       totalCount: 0,
       userJson: null,
+      doctorId: 0,
     };
   },
   //当vue创建后，发起请求查询数据
@@ -226,19 +249,109 @@ export default {
     },
   },
   methods: {
+    // 单个删除
+    handleDelete(index, row) {
+      request
+        .post("/posts/deletePosts", { id: row.id })
+        .then((res) => {
+          if (res.flag) {
+            this.$message.success("删除问诊记录成功");
+            this.selectPage(); //重新查询数据
+          } else {
+            this.$message.error("删除问诊记录失败");
+          }
+        })
+        .catch((error) => {
+          this.$message.error("删除问诊记录出错：" + error.message);
+        });
+    },
+
+    // 批量删除
+    batch_delete() {
+      //被选中的每列数据组成新的数组
+      const selectedIds = this.tableData.filter((item) => item.__selected);
+      if (selectedIds.length === 0) {
+        //数组长度为0,代表没有被选中的数据
+        this.$message.warning("请选择要删除的记录");
+        return;
+      }
+      //取出每项被选中数据的id
+      this.ids = selectedIds.map((item) => item.id);
+
+      // 将数据转换为 JSON 格式
+      const data = { ids: this.ids };
+      console.log(data)
+      request
+        .post("/posts/deleteBatchPosts", data, {
+          jsonRequest: true,
+        })
+        .then((res) => {
+          if (res.flag) {
+            this.$message.success("批量删除问诊记录成功");
+            this.selectPage();
+          } else {
+            this.$message.error("批量删除问诊记录失败");
+          }
+        })
+        .catch((error) => {
+          this.$message.error("批量删除问诊记录出错：" + error.message);
+        });
+    },
+
+    //处理多选框，更新每列的seletc值
+    handleSelectionChange(selection) {
+      this.tableData.forEach((item) => {
+        item.__selected = selection.some(
+          (selectedItem) => selectedItem.id === item.id
+        );
+      });
+    },
+
+    // 显示修改表单弹窗并填充数据
+    handleEdit(index, row) {
+      this.updatePosts = {
+        id: row.id,
+        postsContent: row.postsContent,
+        postsImage: row.postsImage,
+        createTime: row.createTime,
+        publisher: row.publisher,
+        registrationId: row.registrationId,
+        publisherType: row.publisherType,
+      };
+      this.updateFormVisible = true;
+    },
+    // 修改记录
+    updateRecord() {
+      console.log("要发送的 updatePosts 对象: ", this.updatePosts);
+      request
+        .post("/posts/updatePosts", this.updatePosts)
+        .then((res) => {
+          if (res.flag) {
+            this.$message.success("修改问诊记录成功");
+            this.updateFormVisible = false;
+            this.selectPage(); // 重新查询数据
+          } else {
+            this.$message.error("修改问诊记录失败");
+          }
+        })
+        .catch((error) => {
+          this.$message.error("修改问诊记录出错：" + error.message);
+        });
+    },
     //查询函数
     selectPage() {
       if (this.isPage) {
         //如果是doctor
         let url;
         let params = {};
-        var doctorId = this.userJson.id;
+        this.doctorId = this.userJson.id;
         if (this.registrationId) {
-          url = "/posts/selectByRegistrationId",
-          params.registrationId = this.registrationId;
-          params.publisher = doctorId;
+          (url = "/posts/selectByRegistrationId"),
+            (params.registrationId = this.registrationId);
+          params.publisher = this.doctorId;
         } else {
-          (url = "/posts/selectByPublisherId"), (params.publisher = doctorId);
+          (url = "/posts/selectByPublisherId"),
+            (params.publisher = this.doctorId);
         }
         //发送请求
         request
@@ -270,6 +383,7 @@ export default {
                   .toISOString()
                   .slice(0, 19)
                   .replace("T", " ");
+                item.__selected = false; // 初始化 __selected 属性为 false
                 return item;
               });
               //将查询到的数据赋值到当前tableData中
@@ -315,6 +429,7 @@ export default {
                   .toISOString()
                   .slice(0, 19)
                   .replace("T", " ");
+                item.__selected = false; // 初始化 __selected 属性为 false
                 return item;
               });
               //将查询到的数据赋值到当前tableData中
@@ -325,7 +440,7 @@ export default {
     },
     // 显示新增表单弹窗
     showAddForm() {
-      this.posts = {
+      this.addPosts = {
         id: 0,
         postsContent: "",
         postsImage: "",
@@ -338,20 +453,46 @@ export default {
     },
     // 新增记录
     addRecord() {
-      request
-        .post("/posts/managerAddPosts", this.posts)
-        .then((res) => {
-          if (res.flag) {
-            this.$message.success("新增成功");
-            this.addFormVisible = false;
-            this.selectPage(); // 重新查询数据
-          } else {
-            this.$message.error("新增失败");
-          }
-        })
-        .catch((error) => {
-          this.$message.error("新增出错：" + error.message);
-        });
+      if (this.isPage) {
+        //如果是doctor添加问诊记录的话
+        if (Number(this.addPosts.publisher) === this.doctorId) {
+          request
+            .post("/posts/managerAddPosts", this.addPosts)
+            .then((res) => {
+              if (res.flag) {
+                this.$message.success("添加问诊记录成功");
+                this.addFormVisible = false;
+                this.selectPage(); // 重新查询数据
+              } else {
+                this.$message.error("添加问诊记录失败");
+                this.addFormVisible = true;
+              }
+            })
+            .catch((error) => {
+              this.$message.error("添加问诊记录出错：" + error.message);
+            });
+        } else {
+          this.$message.error("添加问诊记录失败,您只能添加属于自己的问诊记录");
+          this.addFormVisible = true;
+        }
+      } else {
+        //如果是manager添加问诊记录的话
+        request
+          .post("/posts/managerAddPosts", this.addPosts)
+          .then((res) => {
+            if (res.flag) {
+              this.$message.success("添加问诊记录成功");
+              this.addFormVisible = false;
+              this.selectPage(); // 重新查询数据
+            } else {
+              this.$message.error("添加问诊记录失败");
+              this.addFormVisible = true;
+            }
+          })
+          .catch((error) => {
+            this.$message.error("添加问诊记录出错：" + error.message);
+          });
+      }
     },
   },
 };
