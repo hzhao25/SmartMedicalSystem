@@ -19,8 +19,8 @@
         </el-form-item>
         <el-form-item>
           <el-input
-            v-model="vaccine_id"
-            placeholder="请输入可预约疫苗的编号"
+            v-model="name"
+            placeholder="请输入管理员名关键字"
           ></el-input>
         </el-form-item>
         <el-form-item>
@@ -45,26 +45,63 @@
     <!-- 下半部分 -->
     <div class="botoom_div">
       <!-- 医生信息展示表格   绑定了tableData的数据 -->
-      <el-table
-        :data="tableData"
-        style="width: 100%"
-        @selection-change="handleSelectionChange"
-      >
+      <el-table :data="tableData" style="width: 100%" @selection-change="handleSelectionChange">
         <!-- 复选框 -->
         <el-table-column
           type="selection"
           width="55"
           v-if="role == 'manager'"
         ></el-table-column>
-        <!-- 表格列名 -->
-        <el-table-column prop="id" label="排序编号"> </el-table-column>
-        <el-table-column prop="vaccineId" label="可预约疫苗编号" sortable>
+        <el-table-column prop="id" label="管理员编号" sortable>
         </el-table-column>
-        <el-table-column prop="nums" label="可接种数量"> </el-table-column>
-        <el-table-column prop="appedNums" label="已预约数量"> </el-table-column>
-        <el-table-column prop="address" label="接种医院地址"> </el-table-column>
-        <el-table-column prop="appDate" label="预约接种时间"> </el-table-column>
-        <el-table-column prop="createTime" label="接种完成时间">
+        <el-table-column prop="image" label="头像" align="center">
+          <template #default="scope">
+            <el-image
+              style="
+                width: auto;
+                height: 40px;
+                border: none;
+                cursor: pointer;
+                border-radius: 50%;
+              "
+              :src="scope.row.image"
+              :preview-src-list="[scope.row.image]"
+            >
+            </el-image>
+          </template>
+        </el-table-column>
+        <el-table-column prop="name" label="管理员名" width="180px">
+        </el-table-column>
+        <el-table-column prop="createDate" label="创建管理员用户时间">
+        </el-table-column>
+        <el-table-column
+          prop="status"
+          label="状态"
+          v-if="role == 'manager'"
+          sortable
+        >
+          <template #default="scope">
+            <el-tag type="success" v-if="scope.row.status == 1">正常</el-tag>
+            <el-tag type="danger" v-if="scope.row.status == 0">禁用</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" v-if="role == 'manager'">
+          <template #default="scope">
+            <el-button
+              size="small"
+              v-if="scope.row.status == 1"
+              type="danger"
+              @click="updateStatus(scope.row)"
+              >禁用</el-button
+            >
+            <el-button
+              size="small"
+              v-if="scope.row.status == 0"
+              type="success"
+              @click="updateStatus(scope.row)"
+              >激活</el-button
+            >
+          </template>
         </el-table-column>
         <el-table-column label="操作" v-if="role == 'manager'">
           <template #default="scope">
@@ -85,27 +122,22 @@
       </el-table>
     </div>
     <!-- 新增表单弹窗 -->
-    <el-dialog :visible.sync="addFormVisible" title="添加可预约疫苗信息">
+    <el-dialog :visible.sync="addFormVisible" title="添加管理员信息">
       <el-form :model="addPosts" ref="addForm">
-        <el-form-item label="可预约疫苗编号">
-          <el-input v-model="addPosts.vaccineId"></el-input>
+        <el-form-item label="用户名">
+          <el-input v-model="addPosts.name"></el-input>
         </el-form-item>
-        <el-form-item label="疫苗可接种数量">
-          <el-input v-model="addPosts.nums"></el-input>
+        <el-form-item label="密码">
+          <el-input v-model="addPosts.password"></el-input>
         </el-form-item>
-        <el-form-item label="疫苗已预约数量">
-          <el-input v-model="addPosts.appedNums"></el-input>
+        <el-form-item label="头像">
+          <el-input v-model="addPosts.image"></el-input>
         </el-form-item>
-        <el-form-item label="地址">
-          <el-input v-model="addPosts.address"></el-input>
-        </el-form-item>
-        <el-form-item label="预约接种时间">
-          <el-date-picker
-            v-model="addPosts.appDate"
-            type="datetime"
-            placeholder="请选择预约接种时间"
-            value-format="yyyy-MM-dd HH:mm:ss"
-          ></el-date-picker>
+        <el-form-item label="状态">
+          <el-select v-model="addPosts.status">
+            <el-option label="禁止" value="0"></el-option>
+            <el-option label="正常" value="1"></el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -117,23 +149,23 @@
     </el-dialog>
 
     <!-- 修改表单弹窗 -->
-    <el-dialog :visible.sync="updateFormVisible" title="修改可预约疫苗信息">
+    <el-dialog :visible.sync="updateFormVisible" title="修改管理员信息">
       <el-form :model="updatePosts" ref="updateForm">
-        <el-form-item label="可预约疫苗编号">
-          <el-input v-model="updatePosts.vaccineId"></el-input>
+        <el-form-item label="用户名">
+          <el-input v-model="updatePosts.name"></el-input>
         </el-form-item>
-        <el-form-item label="疫苗可接种数量">
-          <el-input v-model="updatePosts.nums"></el-input>
+        <el-form-item label="密码">
+          <el-input v-model="updatePosts.password"></el-input>
         </el-form-item>
-        <el-form-item label="疫苗已预约数量">
-          <el-input v-model="updatePosts.appedNums"></el-input>
+        <el-form-item label="头像">
+          <el-input v-model="updatePosts.image"></el-input>
         </el-form-item>
-        <el-form-item label="地址">
-          <el-input v-model="updatePosts.address"></el-input>
+        <el-form-item label="状态">
+          <el-select v-model="updatePosts.status">
+            <el-option label="禁止" value="0"></el-option>
+            <el-option label="正常" value="1"></el-option>
+          </el-select>
         </el-form-item>
-        <!-- <el-form-item label="预约接种时间">
-          <el-input v-model="updatePosts.appDate"></el-input>
-        </el-form-item> -->
       </el-form>
       <template #footer>
         <span class="dialog-footer">
@@ -153,37 +185,36 @@ import Cookies from "js-cookie";
 export default {
   data() {
     return {
+      imageUrl: "", //头像上传路径
       //模糊查询表单input值
-      vaccine_id: "",
+      name: "",
       //表格数据
       tableData: [],
       ids: [], //根据id批量删除存放的容器
-      appointmentVaccine: {
+      status: "",
+      manager: {
         id: 0,
-        vaccineId: "",
-        nums: "",
-        appedNums: "",
-        address: "",
-        appDate: "",
-        createTime: "",
+        name: "",
+        password: "",
+        image: "", //头像文件名
+        createDate: "",
+        status: "",
       },
       addPosts: {
         id: 0,
-        vaccineId: "",
-        nums: "",
-        appedNums: "",
-        address: "",
-        appDate: "",
-        createTime: "",
+        name: "",
+        password: "",
+        createDate: "",
+        image: "",
+        status: "",
       },
       updatePosts: {
         id: 0,
-        vaccineId: "",
-        nums: "",
-        appedNums: "",
-        address: "",
-        appDate: "",
-        createTime: "",
+        name: "",
+        password: "",
+        createDate: "",
+        image: "",
+        status: "",
       },
       updateFormVisible: false,
       addFormVisible: false,
@@ -197,6 +228,7 @@ export default {
     if (Cookies.get("user")) {
       //获取登录用户角色
       // var userJson = JSON.parse(Cookies.get("user"));
+      // this.role = Cookies.get("role").role;
       this.role = Cookies.get("role");
     }
     //调用查询的函数
@@ -206,17 +238,17 @@ export default {
     // 单个删除
     handleDelete(index, row) {
       request
-        .post("/appVaccine/deleteAppVaccine", { id: row.id })
+        .post("/manager/deleteManager", { id: row.id })
         .then((res) => {
           if (res.flag) {
-            this.$message.success("删除可预约疫苗信息成功");
+            this.$message.success("删除管理员信息成功");
             this.selectPage(); //重新查询数据
           } else {
-            this.$message.error("删除可预约疫苗信息失败");
+            this.$message.error("删除管理员信息失败");
           }
         })
         .catch((error) => {
-          this.$message.error("删除可预约疫苗信息出错：" + error.message);
+          this.$message.error("删除管理员信息出错：" + error.message);
         });
     },
 
@@ -234,21 +266,21 @@ export default {
 
       // 将数据转换为 JSON 格式
       const data = { ids: this.ids };
-      console.log(data);
+      console.log(data)
       request
-        .post("/appVaccine/deleteBatchAppVaccine", data, {
+        .post("/manager/deleteBatchManager", data, {
           jsonRequest: true,
         })
         .then((res) => {
           if (res.flag) {
-            this.$message.success("批量删除可预约疫苗信息成功");
+            this.$message.success("批量删除管理员信息成功");
             this.selectPage();
           } else {
-            this.$message.error("批量删除可预约疫苗信息失败");
+            this.$message.error("批量删除管理员信息失败");
           }
         })
         .catch((error) => {
-          this.$message.error("批量删除可预约疫苗信息出错：" + error.message);
+          this.$message.error("批量删除管理员信息出错：" + error.message);
         });
     },
 
@@ -265,70 +297,68 @@ export default {
     handleEdit(index, row) {
       this.updatePosts = {
         id: row.id,
-        vaccineId: row.vaccineId,
-        nums: row.nums,
-        appedNums: row.appedNums,
-        address: row.address,
-        appDate: row.appDate,
-        createTime: row.createTime,
+        name: row.name,
+        password: row.password,
+        createDate: row.createDate,
+        image: row.image,
+        status: row.status,
       };
       this.updateFormVisible = true;
     },
     // 修改记录
     updateRecord() {
       request
-        .post("/appVaccine/updateAppVaccine", this.updatePosts)
+        .post("/manager/updateManager", this.updatePosts)
         .then((res) => {
           if (res.flag) {
-            this.$message.success("修改可预约疫苗信息成功");
+            this.$message.success("修改管理员信息成功");
             this.updateFormVisible = false;
             this.selectPage(); // 重新查询数据
           } else {
-            this.$message.error("修改可预约疫苗信息失败");
+            this.$message.error("修改管理员信息失败");
           }
         })
         .catch((error) => {
-          this.$message.error("修改可预约疫苗信息出错：" + error.message);
+          this.$message.error("修改管理员信息出错：" + error.message);
         });
     },
     // 显示新增表单弹窗
     showAddForm() {
       this.addPosts = {
-        vaccineId: "",
-        nums: "",
-        appedNums: "",
-        address: "",
-        appDate: "",
+        id: "",
+        name: "",
+        password: "",
+        image: "",
+        status: "",
       };
       this.addFormVisible = true;
     },
-    // 新增记录
+        // 新增记录
     addRecord() {
-      request
-        .post("/appVaccine/managerAddAppVaccine", this.addPosts)
-        .then((res) => {
-          if (res.flag) {
-            this.$message.success("添加可预约疫苗信息成功");
-            this.addFormVisible = false;
-            this.selectPage(); // 重新查询数据
-          } else {
-            this.$message.error("添加可预约疫苗信息失败");
-            this.addFormVisible = true;
-          }
-        })
-        .catch((error) => {
-          this.$message.error("添加可预约疫苗信息出错：" + error.message);
-        });
-    },
+        request
+          .post("/manager/managerAddManager", this.addPosts)
+          .then((res) => {
+            if (res.flag) {
+              this.$message.success("添加管理员信息成功");
+              this.addFormVisible = false;
+              this.selectPage(); // 重新查询数据
+            } else {
+              this.$message.error("添加管理员信息失败");
+              this.addFormVisible = true;
+            }
+          })
+          .catch((error) => {
+            this.$message.error("添加管理员信息出错：" + error.message);
+          });
+      },
     //查询函数
     selectPage() {
       let url;
       let params = {};
-      if (this.vaccine_id) {
-        (url = "/appVaccine/selectByAppVaccineId"),
-          (params.vaccine_id = this.vaccine_id);
+      if (this.name) {
+        (url = "/manager/selectByName"), (params.name = this.name);
       } else {
-        url = "/appVaccine/queryAll";
+        url = "/manager/queryAll";
       }
       //发送请求
       request
@@ -347,9 +377,58 @@ export default {
             if (!Array.isArray(list)) {
               list = [list];
             }
+            const newTableData = list.map((item) => {
+              // 假设将 produce_time 格式化为 "yyyy-MM-dd HH:mm:ss" 格式的字符串
+              const date = new Date(
+                item.createDate.year,
+                item.createDate.monthValue - 1,
+                item.createDate.dayOfMonth,
+                item.createDate.hour,
+                item.createDate.minute,
+                item.createDate.second
+              );
+              item.createDate = date
+                .toISOString()
+                .slice(0, 19)
+                .replace("T", " ");
+              return item;
+            });
             //将查询到的数据赋值到当前tableData中
-            this.tableData = list;
+            this.tableData = newTableData;
           }
+        });
+    },
+
+    // 更新医生状态的方法
+    updateStatus(row) {
+      // 根据当前状态确定要更新的目标状态
+      const newStatus = row.status === 1 ? 0 : 1;
+      const managerId = row.id;
+      // 发送请求更新状态
+      request
+        .post("/manager/updateStatus", {
+          id: managerId,
+          status: Number(newStatus),
+        })
+        .then((res) => {
+          if (res.flag) {
+            // 更新成功，给出提示并更新表格数据
+            this.$message.success(newStatus === 1 ? "激活成功" : "禁用成功");
+            // 找到表格中对应的数据并更新状态
+            const targetIndex = this.tableData.findIndex(
+              (item) => item.id === managerId
+            );
+            if (targetIndex !== -1) {
+              this.tableData[targetIndex].status = newStatus; //更新医生状态
+            }
+          } else {
+            // 更新失败，给出提示
+            this.$message.error(newStatus === 1 ? "激活失败" : "禁用失败");
+          }
+        })
+        .catch((error) => {
+          // 请求出错，给出提示
+          this.$message.error("更新状态出错：" + error.message);
         });
     },
   },

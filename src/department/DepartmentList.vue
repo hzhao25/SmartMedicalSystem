@@ -18,7 +18,10 @@
           </el-popconfirm>
         </el-form-item>
         <el-form-item>
-          <el-input v-model="name" placeholder="请输入科室名称关键字"></el-input>
+          <el-input
+            v-model="name"
+            placeholder="请输入科室名称关键字"
+          ></el-input>
         </el-form-item>
         <el-form-item>
           <el-select v-model="status" placeholder="请选择状态">
@@ -31,7 +34,8 @@
             type="primary"
             @click="queryParams"
             style="background-color: #254175"
-          >查询</el-button>
+            >查询</el-button
+          >
         </el-form-item>
         <!-- 批量删除、新增按钮 -->
         <el-form-item v-if="role == 'manager'">
@@ -39,7 +43,8 @@
             style="background-color: #254175"
             type="primary"
             @click="clearForm"
-          >新增</el-button>
+            >新增</el-button
+          >
         </el-form-item>
       </el-form>
     </div>
@@ -54,7 +59,11 @@
           v-if="role == 'manager'"
         ></el-table-column>
         <el-table-column prop="id" label="部门编号"></el-table-column>
-        <el-table-column prop="name" label="科室名称" sortable></el-table-column>
+        <el-table-column
+          prop="name"
+          label="科室名称"
+          sortable
+        ></el-table-column>
         <el-table-column prop="remark" label="描述"></el-table-column>
         <el-table-column prop="status" label="状态" sortable>
           <template #default="scope">
@@ -69,21 +78,30 @@
               v-if="scope.row.status == 1"
               type="danger"
               @click="updateStatus(scope.row)"
-            >禁用</el-button>
+              >禁用</el-button
+            >
             <el-button
               size="small"
               v-if="scope.row.status == 0"
               type="success"
               @click="updateStatus(scope.row)"
-            >激活</el-button>
+              >激活</el-button
+            >
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" v-if="role == 'manager'">
+          <template #default="scope">
             <el-button size="small" @click="handleEdit(scope.$index, scope.row)"
-            >修改</el-button>
+              >修改</el-button
+            >
             <el-popconfirm
               title="删除后无法恢复，确定吗？"
               icon-color="red"
               @confirm="handleDelete(scope.$index, scope.row)"
             >
-              <el-button slot="reference" size="small" type="danger">删除</el-button>
+              <el-button slot="reference" size="small" type="danger"
+                >删除</el-button
+              >
             </el-popconfirm>
           </template>
         </el-table-column>
@@ -107,6 +125,7 @@ export default {
   },
   created() {
     if (Cookies.get("user")) {
+      this.role = Cookies.get("role");
       this.role = Cookies.get("role");
     }
     this.selectPage();
@@ -143,8 +162,40 @@ export default {
             this.tableData = res.list;
           }
         });
-    }
-    // Other methods like batch_delete, handleEdit, handleDelete, updateStatus, clearForm
+    },
+
+    // 更新医生状态的方法
+    updateStatus(row) {
+      // 根据当前状态确定要更新的目标状态
+      const newStatus = row.status === 1 ? 0 : 1;
+      const managerId = row.id;
+      // 发送请求更新状态
+      request
+        .post("/department/updateStatus", {
+          id: managerId,
+          status: Number(newStatus),
+        })
+        .then((res) => {
+          if (res.flag) {
+            // 更新成功，给出提示并更新表格数据
+            this.$message.success(newStatus === 1 ? "激活成功" : "禁用成功");
+            // 找到表格中对应的数据并更新状态
+            const targetIndex = this.tableData.findIndex(
+              (item) => item.id === managerId
+            );
+            if (targetIndex !== -1) {
+              this.tableData[targetIndex].status = newStatus; //更新医生状态
+            }
+          } else {
+            // 更新失败，给出提示
+            this.$message.error(newStatus === 1 ? "激活失败" : "禁用失败");
+          }
+        })
+        .catch((error) => {
+          // 请求出错，给出提示
+          this.$message.error("更新状态出错：" + error.message);
+        });
+    },
   },
 };
 </script>

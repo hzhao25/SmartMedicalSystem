@@ -16,7 +16,7 @@
           <span style="font-size: 17px; font-weight: bold;font-family:'苹方'">管理员模块</span>
         </template>
         <el-menu-item-group>
-          <el-menu-item index="/ManagerLayout/adminList"
+          <el-menu-item index="/ManagerLayout/managerList"
             ><i class="el-icon-link"></i>管理员列表</el-menu-item
           >
         </el-menu-item-group>
@@ -39,7 +39,7 @@
           <el-menu-item index="/ManagerLayout/postsList"
             ><i class="el-icon-link"></i>问诊记录</el-menu-item
           >
-          <el-menu-item index="/ManagerLayout/vaccineRecord" v-if="role != 'doctor'"
+          <el-menu-item index="/ManagerLayout/vaccineRecord" v-if="role == 'doctor' || role == 'doctor' || role == 'user'"
             ><i class="el-icon-link"></i>接种记录</el-menu-item
           >
         </el-menu-item-group>

@@ -45,7 +45,7 @@
           >
           <el-menu-item
             index="/DoctorLayout/vaccineRecord"
-            v-if="role != 'doctor'"
+            v-if="role == 'doctor' || role == 'doctor' || role == 'user'"
             ><i class="el-icon-link"></i>接种记录</el-menu-item
           >
         </el-menu-item-group>

@@ -14,13 +14,22 @@ const request = axios.create({
 // request 拦截器
 request.interceptors.request.use(
     config => {
-      //对请求的数据进行处理
+      /* //对请求的数据进行处理
       if (config.method != 'get') {
         config.data = qs.stringify(config.data);
       }
       // post请求方式的content格式
       config.headers['content-Type'] = 'application/x-www-form-urlencoded';//允许通过访问
-      return config;
+      return config; */
+
+      // 根据自定义配置选项决定是否转换数据格式和设置请求头
+        if (config.method!== 'get' &&!config.jsonRequest) {
+        config.data = qs.stringify(config.data);
+        config.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    } else if (config.jsonRequest) {
+        config.headers['Content-Type'] = 'application/json';
+    }
+    return config;
     },
     error => {
       console.log('err' + error) // for debug
