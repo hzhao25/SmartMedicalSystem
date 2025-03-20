@@ -101,9 +101,6 @@
           <el-menu-item index="/DoctorLayout/appVaccineList"
             ><i class="el-icon-link"></i>可预约疫苗</el-menu-item
           >
-          <el-menu-item index="/DoctorLayout/nucleicAcidResult"
-            ><i class="el-icon-link"></i>核酸检测结果</el-menu-item
-          >
         </el-menu-item-group>
       </el-submenu>
     </el-menu>

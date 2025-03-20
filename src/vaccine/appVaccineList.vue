@@ -131,9 +131,14 @@
         <el-form-item label="地址">
           <el-input v-model="updatePosts.address"></el-input>
         </el-form-item>
-        <!-- <el-form-item label="预约接种时间">
-          <el-input v-model="updatePosts.appDate"></el-input>
-        </el-form-item> -->
+        <el-form-item label="预约接种时间">
+          <el-date-picker
+            v-model="updatePosts.appDate"
+            type="datetime"
+            placeholder="请选择预约接种时间"
+            value-format="yyyy-MM-dd HH:mm:ss"
+          ></el-date-picker>
+        </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
