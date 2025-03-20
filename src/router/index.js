@@ -20,6 +20,7 @@ import RegistList from '@/user/RegistList.vue'
 import UserList from '@/user/UserList.vue'
 import ManagerList from '@/manager/ManagerList.vue'
 import VaccineRecord from '@/vaccineRecord/VaccineRecord.vue'
+import UserVaccine from '@/user/UserVaccine.vue'
 Vue.use(VueRouter)
 
 const router=new VueRouter({
@@ -76,6 +77,10 @@ const router=new VueRouter({
                 {
                     path:'vaccineRecord',
                     component:VaccineRecord
+                },
+                {
+                    path:'UserVaccine',
+                    component:UserVaccine
                 }
             ]
         },

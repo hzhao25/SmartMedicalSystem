@@ -113,11 +113,27 @@ export default {
     selectPage() {
       let url;
       let params = {};
-      if (this.doctorId) {
-        (url = "/vaccineRecord/selectByDoctorId"), (params.doctorId = this.doctorId);
-      } else {
+
+      if (this.role === "manager") {
+        // 管理员可以查询所有
         url = "/vaccineRecord/queryAll";
+      } else if (this.role === "doctor") {
+        // 医生只能查询自己接种的用户记录
+        const userJson = JSON.parse(Cookies.get("user"));
+        params.doctorId = userJson.id;
+        url = "/vaccineRecord/selectByDoctorId"; // 这里可以直接用医生查询接口
+      } else {
+        // 用户只能查询自己的接种记录
+        const userJson = JSON.parse(Cookies.get("user"));
+        params.userId = userJson.id;
+        url = "/vaccineRecord/selectByUserId"; // 这里需要新增一个用户查询接口
+        if (this.doctorId) {
+          params.doctorId = this.doctorId;
+          url = "/vaccineRecord/selectByIds";
+        }
       }
+      // 如果 doctorId 不是空，添加到查询参数
+      
       //发送请求
       request
         .get(url, {

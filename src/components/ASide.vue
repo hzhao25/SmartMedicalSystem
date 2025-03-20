@@ -36,7 +36,7 @@
             v-if="role == 'manager' || role == 'doctor' || role == 'user'"
             ><i class="el-icon-link"></i>挂号记录</el-menu-item
           >
-          <el-menu-item index="/Layout/vaccineRecord" v-if="role != 'doctor'"
+          <el-menu-item index="/Layout/vaccineRecord"
             ><i class="el-icon-link"></i>接种记录</el-menu-item
           >
         </el-menu-item-group>
@@ -53,6 +53,9 @@
           >
           <el-menu-item index="/Layout/userRegis" v-if="role == 'user'"
             ><i class="el-icon-link"></i>预约挂号</el-menu-item
+          >
+          <el-menu-item index="/Layout/UserVaccine" v-if="role == 'user'"
+            ><i class="el-icon-link"></i>预约疫苗</el-menu-item
           >
         </el-menu-item-group>
       </el-submenu>
