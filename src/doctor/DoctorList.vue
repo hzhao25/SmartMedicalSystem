@@ -489,7 +489,7 @@ export default {
             this.tableData = res.list;
           }
         });
-    }
+    },
 
     // 更新医生状态的方法
     updateStatus(row) {

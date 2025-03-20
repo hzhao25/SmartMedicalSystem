@@ -75,12 +75,17 @@
                 style="width: 63%"
               >
               </el-input>
-              <div class="login-code">
+              <!-- <div class="login-code">
                 <el-avatar
                   shape="square"
                   style="width: 100px"
                   :src="codeUrl"
                 ></el-avatar>
+              </div> -->
+              <!-- 新增部分：显示验证码文本和刷新按钮 -->
+              <div class="login-code">
+                <span>{{ captchaText }}</span>
+                <el-button @click="generateCaptcha" size="small" style="margin-left:10px">刷新</el-button>
               </div>
             </el-form-item>
             <el-form-item style="width: 100%">
@@ -295,10 +300,25 @@ export default {
       register: true,
       registerFormVisible: false,
       roleType: "用户",
+      captchaText: "",
     };
   },
-  created() {},
+  created() {
+    this.generateCaptcha();
+  },
   methods: {
+    // 新增：生成验证码的方法
+    generateCaptcha() {
+      const characters =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let captcha = "";
+      for (let i = 0; i < 6; i++) {
+        captcha += characters.charAt(
+          Math.floor(Math.random() * characters.length)
+        );
+      }
+      this.captchaText = captcha;
+    },
     //修改密码显示类型
     cho() {
       this.password_type = this.password_type == "text" ? "password" : "text";
@@ -310,6 +330,12 @@ export default {
     },
     //登录的处理函数
     doLogin() {
+      const userInputCode = this.loginForm.code;
+      if (userInputCode !== this.captchaText) {
+        this.$message.error("验证码错误，请重新输入");
+        this.generateCaptcha(); // 重新生成验证码
+        return;
+      }
       let url;
       let loginUrl;
       switch (this.roleType) {
@@ -453,6 +479,19 @@ input {
   width: 33%;
   height: 38px;
   float: right;
+  /* 新增：使用 flex 布局，使验证码文本和刷新按钮垂直居中对齐 */
+  display: flex;
+  align-items: center;
+}
+
+/* 新增：为验证码文本添加样式，设置右侧外边距，让文本和按钮有间距 */
+.captcha-text {
+  margin-right: 10px;
+}
+
+/* 新增：为刷新按钮添加样式，设置内边距，让按钮尺寸变小 */
+.refresh-button {
+  padding: 6px 12px;
 }
 
 .el-login-footer {

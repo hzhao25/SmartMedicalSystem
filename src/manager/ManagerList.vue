@@ -124,6 +124,9 @@
     <!-- 新增表单弹窗 -->
     <el-dialog :visible.sync="addFormVisible" title="添加管理员信息">
       <el-form :model="addPosts" ref="addForm">
+        <el-form-item label="用户编号">
+          <el-input v-model="addPosts.id"></el-input>
+        </el-form-item>
         <el-form-item label="用户名">
           <el-input v-model="addPosts.name"></el-input>
         </el-form-item>

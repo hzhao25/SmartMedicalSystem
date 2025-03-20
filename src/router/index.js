@@ -73,6 +73,10 @@ const router=new VueRouter({
                     name:'RegistList',
                     component: RegistList
                 },
+                {
+                    path:'vaccineRecord',
+                    component:VaccineRecord
+                }
             ]
         },
         {
@@ -179,6 +183,14 @@ const router=new VueRouter({
                     path:'registrationList',
                     component:RegistrationList
                 },
+                {
+                    path:'vaccineRecord',
+                    component:VaccineRecord
+                },
+                {
+                    path:'UserList',
+                    component:UserList
+                }
             ]
         },
         {
@@ -186,6 +198,10 @@ const router=new VueRouter({
             name:'Login',
             component:Login
         },
+        {
+            path:'/Login',
+            component:Login
+        }
     ]
 })
 
