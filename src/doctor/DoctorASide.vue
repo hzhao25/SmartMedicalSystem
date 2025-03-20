@@ -36,7 +36,7 @@
             ><i class="el-icon-link"></i> 医生列表</el-menu-item
           >
           <el-menu-item
-            index="/DoctorLayout/RegistList"
+            index="/DoctorLayout/registrationList"
             v-if="role == 'manager' || role == 'doctor' || role == 'user'"
             ><i class="el-icon-link"></i>挂号记录</el-menu-item
           >
@@ -100,9 +100,6 @@
           >
           <el-menu-item index="/DoctorLayout/appVaccineList"
             ><i class="el-icon-link"></i>可预约疫苗</el-menu-item
-          >
-          <el-menu-item index="/DoctorLayout/nucleicAcidResult"
-            ><i class="el-icon-link"></i>核酸检测结果</el-menu-item
           >
         </el-menu-item-group>
       </el-submenu>

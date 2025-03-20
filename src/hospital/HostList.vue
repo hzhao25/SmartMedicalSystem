@@ -33,7 +33,7 @@
           <el-button
             style="background-color: #254175"
             type="primary"
-            @click="clearForm"
+            @click="showAddForm"
             >新增</el-button
           >
         </el-form-item>
@@ -42,7 +42,11 @@
     <!-- 下半部分 -->
     <div class="botoom_div">
       <!-- 医院信息展示表格   绑定了tableData的数据 -->
-      <el-table :data="tableData" style="width: 100%">
+      <el-table
+        :data="tableData"
+        style="width: 100%"
+        @selection-change="handleSelectionChange"
+      >
         <!-- 复选框 -->
         <el-table-column
           type="selection"
@@ -103,6 +107,81 @@
         </el-table-column>
       </el-table>
     </div>
+    <!-- 新增表单弹窗 -->
+    <el-dialog :visible.sync="addFormVisible" title="添加医院信息">
+      <el-form :model="addPosts" ref="addForm">
+        <el-form-item label="医院名">
+          <el-input v-model="addPosts.name"></el-input>
+        </el-form-item>
+        <el-form-item label="医院地址">
+          <el-input v-model="addPosts.address"></el-input>
+        </el-form-item>
+        <el-form-item label="医院联系电话">
+          <el-input v-model="addPosts.phone"></el-input>
+        </el-form-item>
+        <el-form-item label="医院详情">
+          <el-input v-model="addPosts.remark"></el-input>
+        </el-form-item>
+        <el-form-item label="医院建立时间">
+          <el-date-picker
+            v-model="addPosts.createTime"
+            type="datetime"
+            placeholder="请选择医院建立时间"
+            value-format="yyyy-MM-dd HH:mm:ss"
+          ></el-date-picker>
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-select v-model="addPosts.status">
+            <el-option label="禁止" value="0"></el-option>
+            <el-option label="正常" value="1"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="addFormVisible = false">取消</el-button>
+          <el-button type="primary" @click="addRecord">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 修改表单弹窗 -->
+    <el-dialog :visible.sync="updateFormVisible" title="修改医院信息">
+      <el-form :model="updatePosts" ref="updateForm">
+        <el-form-item label="医院名">
+          <el-input v-model="updatePosts.name"></el-input>
+        </el-form-item>
+        <el-form-item label="医院地址">
+          <el-input v-model="updatePosts.address"></el-input>
+        </el-form-item>
+        <el-form-item label="医院联系电话">
+          <el-input v-model="updatePosts.phone"></el-input>
+        </el-form-item>
+        <el-form-item label="医院详情">
+          <el-input v-model="updatePosts.remark"></el-input>
+        </el-form-item>
+        <el-form-item label="医院建立时间">
+          <el-date-picker
+            v-model="updatePosts.createTime"
+            type="datetime"
+            placeholder="请选择医院建立时间"
+            value-format="yyyy-MM-dd HH:mm:ss"
+          ></el-date-picker>
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-select v-model="updatePosts.status">
+            <el-option label="禁止" value="0"></el-option>
+            <el-option label="正常" value="1"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="updateFormVisible = false">取消</el-button>
+          <el-button type="primary" @click="updateRecord">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -127,6 +206,24 @@ export default {
         remark: "",
         createTime: "",
       },
+      addPosts: {
+        id: 0,
+        name: "",
+        address: "",
+        phone: "",
+        remark: "",
+        createTime: "",
+        status:"",
+      },
+      updatePosts: {
+        id: 0,
+        name: "",
+        address: "",
+        phone: "",
+        remark: "",
+        createTime: "",
+        status:"",
+      },
       updateFormVisible: false,
       addFormVisible: false,
       currentPage: 1,
@@ -145,6 +242,122 @@ export default {
     this.selectPage();
   },
   methods: {
+    // 单个删除
+    handleDelete(index, row) {
+      request
+        .post("/hospital/deleteHospital", { id: row.id })
+        .then((res) => {
+          if (res.flag) {
+            this.$message.success("删除医院信息成功");
+            this.selectPage(); //重新查询数据
+          } else {
+            this.$message.error("删除医院信息失败");
+          }
+        })
+        .catch((error) => {
+          this.$message.error("删除医院信息出错：" + error.message);
+        });
+    },
+
+    // 批量删除
+    batch_delete() {
+      //被选中的每列数据组成新的数组
+      const selectedIds = this.tableData.filter((item) => item.__selected);
+      if (selectedIds.length === 0) {
+        //数组长度为0,代表没有被选中的数据
+        this.$message.warning("请选择要删除的记录");
+        return;
+      }
+      //取出每项被选中数据的id
+      this.ids = selectedIds.map((item) => item.id);
+
+      // 将数据转换为 JSON 格式
+      const data = { ids: this.ids };
+      console.log(data);
+      request
+        .post("/hospital/deleteBatchHospital", data, {
+          jsonRequest: true,
+        })
+        .then((res) => {
+          if (res.flag) {
+            this.$message.success("批量删除医院信息成功");
+            this.selectPage();
+          } else {
+            this.$message.error("批量删除医院信息失败");
+          }
+        })
+        .catch((error) => {
+          this.$message.error("批量删除医院信息出错：" + error.message);
+        });
+    },
+
+    //处理多选框，更新每列的seletc值
+    handleSelectionChange(selection) {
+      this.tableData.forEach((item) => {
+        item.__selected = selection.some(
+          (selectedItem) => selectedItem.id === item.id
+        );
+      });
+    },
+
+    // 显示修改表单弹窗并填充数据
+    handleEdit(index, row) {
+      this.updatePosts = {
+        id: row.id,
+        name: row.name,
+        address: row.address,
+        phone: row.phone,
+        remark: row.remark,
+        createTime: row.createTime,
+      };
+      this.updateFormVisible = true;
+    },
+    // 修改记录
+    updateRecord() {
+      request
+        .post("/hospital/updateHospital", this.updatePosts)
+        .then((res) => {
+          if (res.flag) {
+            this.$message.success("修改医院信息成功");
+            this.updateFormVisible = false;
+            this.selectPage(); // 重新查询数据
+          } else {
+            this.$message.error("修改医院信息失败");
+          }
+        })
+        .catch((error) => {
+          this.$message.error("修改医院信息出错：" + error.message);
+        });
+    },
+    // 显示新增表单弹窗
+    showAddForm() {
+      this.addPosts = {
+        name: "",
+        address: "",
+        phone: "",
+        remark: "",
+        createTime: "",
+      };
+      this.addFormVisible = true;
+    },
+    // 新增记录
+    addRecord() {
+      request
+        .post("/hospital/managerAddHospital", this.addPosts)
+        .then((res) => {
+          if (res.flag) {
+            this.$message.success("添加医院信息成功");
+            this.addFormVisible = false;
+            this.selectPage(); // 重新查询数据
+          } else {
+            this.$message.error("添加医院信息失败");
+            this.addFormVisible = true;
+          }
+        })
+        .catch((error) => {
+          this.$message.error("添加医院信息出错：" + error.message);
+        });
+    },
     //查询函数
     selectPage() {
       let url;
@@ -171,7 +384,7 @@ export default {
             if (!Array.isArray(list)) {
               list = [list];
             }
-            const newTableData = list.map((item) => {
+/*             const newTableData = list.map((item) => {
               // 假设将预约疫苗时间格式化为 "yyyy-MM-dd HH:mm:ss" 格式的字符串
               const CreateTime = new Date(
                 item.createTime.year,
@@ -185,9 +398,10 @@ export default {
                 .slice(0, 19)
                 .replace("T", " ");
               return item;
-            });
+            }); */
             //将查询到的数据赋值到当前tableData中
-            this.tableData = newTableData;
+            // this.tableData = newTableData;
+            this.tableData=list;
           }
         });
     },

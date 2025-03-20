@@ -32,14 +32,14 @@
             ><i class="el-icon-link"></i> 医生列表</el-menu-item
           >
           <el-menu-item
-            index="/ManagerLayout/RegistList"
+            index="/ManagerLayout/registrationList"
             v-if="role == 'manager' || role == 'doctor' || role == 'user'"
             ><i class="el-icon-link"></i>挂号记录</el-menu-item
           >
           <el-menu-item index="/ManagerLayout/postsList"
             ><i class="el-icon-link"></i>问诊记录</el-menu-item
           >
-          <el-menu-item index="/ManagerLayout/vaccineRecord" v-if="role == 'doctor' || role == 'doctor' || role == 'user'"
+          <el-menu-item index="/ManagerLayout/vaccineRecord" v-if="role == 'doctor' || role == 'manager' || role == 'user'"
             ><i class="el-icon-link"></i>接种记录</el-menu-item
           >
         </el-menu-item-group>
@@ -88,9 +88,6 @@
           >
           <el-menu-item index="/ManagerLayout/appVaccineList"
             ><i class="el-icon-link"></i>可预约疫苗</el-menu-item
-          >
-          <el-menu-item index="/DoctorLayout/nucleicAcidResult"
-            ><i class="el-icon-link"></i>核酸检测结果</el-menu-item
           >
         </el-menu-item-group>
       </el-submenu>

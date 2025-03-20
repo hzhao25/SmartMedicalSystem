@@ -14,11 +14,12 @@ import appVaccineList from '@/vaccine/appVaccineList.vue'
 import ManagerLayOut from '@/manager/ManagerLayOut.vue'
 import HospitalList from '@/hospital/HostList.vue'
 import PostsList from '@/posts/PostsList.vue'
-//import RegistrationList from '@/registration/RegistrationList.vue'
+import RegistrationList from '@/registration/RegistrationList.vue'
 import UserRegis from '@/user/UserRegis.vue'
 import RegistList from '@/user/RegistList.vue'
 import UserList from '@/user/UserList.vue'
 import ManagerList from '@/manager/ManagerList.vue'
+import VaccineRecord from '@/vaccineRecord/VaccineRecord.vue'
 Vue.use(VueRouter)
 
 const router=new VueRouter({
@@ -72,6 +73,10 @@ const router=new VueRouter({
                     name:'RegistList',
                     component: RegistList
                 },
+                {
+                    path:'vaccineRecord',
+                    component:VaccineRecord
+                }
             ]
         },
         {
@@ -116,6 +121,14 @@ const router=new VueRouter({
                 {
                     path:'postsList',
                     component:PostsList
+                },
+                {
+                    path:'registrationList',
+                    component:RegistrationList
+                },
+                {
+                    path:'vaccineRecord',
+                    component:VaccineRecord
                 }
             ]
         },
@@ -170,6 +183,18 @@ const router=new VueRouter({
                     path:'UserList',
                     component: UserList
                 },
+                {
+                    path:'registrationList',
+                    component:RegistrationList
+                },
+                {
+                    path:'vaccineRecord',
+                    component:VaccineRecord
+                },
+                {
+                    path:'UserList',
+                    component:UserList
+                }
             ]
         },
         {
@@ -177,6 +202,10 @@ const router=new VueRouter({
             name:'Login',
             component:Login
         },
+        {
+            path:'/Login',
+            component:Login
+        }
     ]
 })
 
