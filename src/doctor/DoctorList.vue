@@ -24,7 +24,7 @@
           <el-input v-model="phone" placeholder="请输入手机号"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-select v-model="hosId" placeholder="请选择医院" @change="onHospitalChange">
+          <el-select v-model="hostId" placeholder="请选择医院" @change="onHospitalChange">
             <!-- <el-option :value="''"></el-option> -->
             <el-option
               v-for="item in hos_options"
@@ -159,21 +159,47 @@
       </el-table>
     </div>
     <!-- 新增表单弹窗 -->
-    <el-dialog :visible.sync="addFormVisible" title="添加管理员信息">
-      <el-form :model="addPosts" ref="addForm">
-        <el-form-item label="用户名">
-          <el-input v-model="addPosts.name"></el-input>
+    <el-dialog :visible.sync="addFormVisible" title="添加医生信息">
+      <el-form :model="newDoctor" ref="addForm">
+        <el-form-item label="姓名" required>
+          <el-input v-model="newDoctor.name"></el-input>
         </el-form-item>
-        <el-form-item label="密码">
-          <el-input v-model="addPosts.password"></el-input>
+        <el-form-item label="密码" required>
+          <el-input type="password" v-model="newDoctor.password"></el-input>
         </el-form-item>
         <el-form-item label="头像">
-          <el-input v-model="addPosts.image"></el-input>
+          <el-input v-model="newDoctor.image"></el-input>
+        </el-form-item>
+        <el-form-item label="手机号码" required>
+          <el-input v-model="newDoctor.phone"></el-input>
+        </el-form-item>
+        <el-form-item label="专业" required>
+          <el-input v-model="newDoctor.major"></el-input>
+        </el-form-item>
+        <el-form-item label="毕业院校" required>
+          <el-input v-model="newDoctor.school"></el-input>
+        </el-form-item>
+        <el-form-item label="医院编号" required>
+          <el-input v-model="newDoctor.hostId"></el-input>
+        </el-form-item>
+        <el-form-item label="等待人数" required>
+          <el-input v-model="newDoctor.waitNums"></el-input>
+        </el-form-item>
+        <el-form-item label="科室" required>
+          <el-select v-model="newDoctor.departmentId">
+            <el-option v-for="dept in departmentOptions" :key="dept.id" :label="dept.name" :value="dept.id"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="角色">
+          <el-select v-model="newDoctor.role">
+            <el-option label="医生" value="doctor"></el-option>
+            <el-option label="护士" value="nurse"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="addPosts.status">
-            <el-option label="禁止" value="0"></el-option>
+          <el-select v-model="newDoctor.status">
             <el-option label="正常" value="1"></el-option>
+            <el-option label="禁用" value="0"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -186,19 +212,45 @@
     </el-dialog>
 
     <!-- 修改表单弹窗 -->
-    <el-dialog :visible.sync="updateFormVisible" title="修改管理员信息">
-      <el-form :model="updatePosts" ref="updateForm">
-        <el-form-item label="用户名">
-          <el-input v-model="updatePosts.name"></el-input>
+    <el-dialog :visible.sync="updateFormVisible" title="修改医生信息">
+      <el-form :model="Doctor" ref="updateForm">
+        <el-form-item label="姓名" required>
+          <el-input v-model="Doctor.name"></el-input>
         </el-form-item>
-        <el-form-item label="密码">
-          <el-input v-model="updatePosts.password"></el-input>
+        <el-form-item label="密码" required>
+          <el-input type="password" v-model="Doctor.password"></el-input>
         </el-form-item>
         <el-form-item label="头像">
-          <el-input v-model="updatePosts.image"></el-input>
+          <el-input v-model="Doctor.image"></el-input>
+        </el-form-item>
+        <el-form-item label="手机号码" required>
+          <el-input v-model="Doctor.phone"></el-input>
+        </el-form-item>
+        <el-form-item label="专业" required>
+          <el-input v-model="Doctor.major"></el-input>
+        </el-form-item>
+        <el-form-item label="毕业院校" required>
+          <el-input v-model="Doctor.school"></el-input>
+        </el-form-item>
+        <el-form-item label="医院编号" required>
+          <el-input v-model="Doctor.hostId"></el-input>
+        </el-form-item>
+        <el-form-item label="等待人数" required>
+          <el-input v-model="Doctor.waitNums"></el-input>
+        </el-form-item>
+        <el-form-item label="科室" required>
+          <el-select v-model="Doctor.departmentId">
+            <el-option v-for="dept in departmentOptions" :key="dept.id" :label="dept.name" :value="dept.id"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="角色">
+          <el-select v-model="Doctor.role">
+            <el-option label="医生" value="1"></el-option>
+            <el-option label="护士" value="0"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="updatePosts.status">
+          <el-select v-model="Doctor.status">
             <el-option label="禁止" value="0"></el-option>
             <el-option label="正常" value="1"></el-option>
           </el-select>
@@ -226,7 +278,7 @@ export default {
       imageUrl: "", //头像上传路径
       //模糊查询表单input值
       name: "",
-      hosId: "",
+      hostId: "",
       deptId: "",
       phone: "",
       hos_options: [],
@@ -250,7 +302,7 @@ export default {
         major: "",
         waitNums: "",
         deptId: "",
-        hosId: "",
+        hostId: "",
         departmentName: "",
         hospitalName: "",
         role: "doctor",
@@ -265,24 +317,39 @@ export default {
           label: "护士",
         },
       ],
-      addPosts: {
-        id: 0,
-        name: "",
-        password: "",
-        createDate: "",
-        image: "",
-        status: "",
+      // 添加医生信息
+      newDoctor: {
+        name: '',
+        password: '',
+        image: '',
+        phone: '',
+        major: '',
+        school: '',
+        hostId:'',
+        waitNums:'',
+        departmentId: null,
+        role:'',
+        status: 1, // 默认状态
       },
-      updatePosts: {
-        id: 0,
-        name: "",
-        password: "",
-        createDate: "",
-        image: "",
-        status: "",
+      // 修改医生信息
+      Doctor: {
+        id: null, // 用于保存 ID
+        name: '',
+        password: '',
+        image: '',
+        phone: '',
+        major: '',
+        school: '',
+        hostId:'',
+        waitNums:'',
+        departmentId: null,
+        role:'',
+        status: 1,
       },
-      updateFormVisible: false,
+      doctorId:0,
+      departmentOptions: [], // 用于存放科室选项
       addFormVisible: false,
+      updateFormVisible: false,
       currentPage: 1,
       pageSize: 5,
       totalCount: 0,
@@ -303,17 +370,17 @@ export default {
     // 单个删除
     handleDelete(index, row) {
       request
-        .post("/manager/deleteManager", { id: row.id })
+        .post("/doctor/delete", { id: row.id })
         .then((res) => {
           if (res.flag) {
-            this.$message.success("删除管理员信息成功");
+            this.$message.success("删除医生信息成功");
             this.selectPage(); //重新查询数据
           } else {
-            this.$message.error("删除管理员信息失败");
+            this.$message.error("删除医生信息失败");
           }
         })
         .catch((error) => {
-          this.$message.error("删除管理员信息出错：" + error.message);
+          this.$message.error("删除医生信息出错：" + error.message);
         });
     },
 
@@ -333,19 +400,19 @@ export default {
       const data = { ids: this.ids };
       console.log(data);
       request
-        .post("/manager/deleteBatchManager", data, {
+        .post("/doctor/deleteBatch", data, {
           jsonRequest: true,
         })
         .then((res) => {
           if (res.flag) {
-            this.$message.success("批量删除管理员信息成功");
+            this.$message.success("批量删除医生信息成功");
             this.selectPage();
           } else {
-            this.$message.error("批量删除管理员信息失败");
+            this.$message.error("批量删除医生信息失败");
           }
         })
         .catch((error) => {
-          this.$message.error("批量删除管理员信息出错：" + error.message);
+          this.$message.error("批量删除医生信息出错：" + error.message);
         });
     },
 
@@ -360,12 +427,20 @@ export default {
 
     // 显示修改表单弹窗并填充数据
     handleEdit(index, row) {
-      this.updatePosts = {
+      this.doctorId=row.id;
+      console.log(this.doctorId);
+      this.Doctor = {
         id: row.id,
         name: row.name,
         password: row.password,
-        createDate: row.createDate,
         image: row.image,
+        phone: row.phone,
+        major: row.major,
+        school: row.school,
+        hostId: row.hostId,
+        waitNums: row.waitNums,
+        departmentId: row.departmentId,
+        role: row.role,
         status: row.status,
       };
       this.updateFormVisible = true;
@@ -373,47 +448,54 @@ export default {
     // 修改记录
     updateRecord() {
       request
-        .post("/manager/updateManager", this.updatePosts)
+        .post("/doctor/update",this.Doctor)
         .then((res) => {
           if (res.flag) {
-            this.$message.success("修改管理员信息成功");
+            this.$message.success("修改医生信息成功");
             this.updateFormVisible = false;
             this.selectPage(); // 重新查询数据
           } else {
-            this.$message.error("修改管理员信息失败");
+            this.$message.error("修改医生信息失败");
           }
         })
         .catch((error) => {
-          this.$message.error("修改管理员信息出错：" + error.message);
+          this.$message.error("修改医生信息出错：" + error.message);
         });
     },
     // 显示新增表单弹窗
     showAddForm() {
-      this.addPosts = {
-        id: "",
+      this.newDoctor = {
+        id: null, // 可以设为 null 或保持为空字符串
         name: "",
         password: "",
         image: "",
-        status: "",
+        phone: "", // 添加手机号码字段
+        major: "", // 添加专业字段
+        school: "", // 添加毕业院校字段
+        hostId: "",
+        waitNums: "",
+        departmentId: null, // 添加科室字段
+        role: "",
+        status: 1 // 默认状态设置为正常
       };
-      this.addFormVisible = true;
+      this.addFormVisible = true; // 显示新增表单弹窗
     },
     // 新增记录
     addRecord() {
       request
-        .post("/manager/managerAddManager", this.addPosts)
+        .post("/doctor/add", this.newDoctor)
         .then((res) => {
           if (res.flag) {
-            this.$message.success("添加管理员信息成功");
+            this.$message.success("添加医生信息成功");
             this.addFormVisible = false;
             this.selectPage(); // 重新查询数据
           } else {
-            this.$message.error("添加管理员信息失败");
+            this.$message.error("添加医生信息失败");
             this.addFormVisible = true;
           }
         })
         .catch((error) => {
-          this.$message.error("添加管理员信息出错：" + error.message);
+          this.$message.error("添加医生信息出错：" + error.message);
         });
     },
     //查询函数
@@ -461,12 +543,19 @@ export default {
             this.dept_options = res.list;
           }
         });
+      request.get("/department/queryAll").then((res) => {
+        if (res.flag === false) {
+          this.$message.error(res.message);
+        } else {
+          this.departmentOptions = res.list; // 假设 res.list 是科室数组
+        }
+      });
     },
     onHospitalChange(value) {
-      this.hosId = value; // 将选中的医院ID赋值给 hosId
+      this.hostId = value; // 将选中的医院ID赋值给 hostId
     },
     onDeptChange(value) {
-      this.hosId = value; // 将选中的医院ID赋值给 hosId
+      this.hostId = value; // 将选中的医院ID赋值给 hostId
     },
     queryParams(){
       request
@@ -474,7 +563,7 @@ export default {
           params: {
             name: this.name,          // 医生姓名
             phone: this.phone,        // 电话
-            hosId: this.hosId,        // 医院ID
+            hostId: this.hostId,        // 医院ID
             deptId: this.deptId       // 部门ID
           },
         })
@@ -489,7 +578,7 @@ export default {
             this.tableData = res.list;
           }
         });
-    }
+    },
 
     // 更新医生状态的方法
     updateStatus(row) {

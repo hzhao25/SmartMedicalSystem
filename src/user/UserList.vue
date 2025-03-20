@@ -359,7 +359,9 @@ export default {
         .then(() => {
           const ids = selectedUsers.map((user) => user.id);
           console.log(ids);
-          request.delete("/user/batchDelete", { data: { ids:ids } }).then((res) => {
+          request.delete("/user/batchDelete", {data:{ids: ids}, 
+          jsonRequest: true,
+         }).then((res) => {
             if (res.flag === false) {
               this.$message.error(res.message);
             } else {
