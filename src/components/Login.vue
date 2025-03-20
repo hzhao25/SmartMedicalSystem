@@ -125,18 +125,24 @@
       >
         <!-- 头像 -->
         <el-form-item label="头像" prop="image">
-          <el-upload
-            class="avatar-uploader"
-            action="http://localhost:80/vaccinum/common/upload"
-            :show-file-list="false"
-            :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload"
-          >
-            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
-            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-          </el-upload>
-          <!-- 隐藏输入字段，用来存储图片的文件名 -->
-          <input type="hidden" name="avatar" v-model="registerForm.image" />
+          <div class="avatar-container">
+            <el-upload
+              class="avatar-uploader"
+              action="http://localhost:80/vaccinum/common/upload"
+              :show-file-list="false"
+              :on-success="handleAvatarSuccess"
+              :before-upload="beforeAvatarUpload"
+            >
+              <img
+                v-if="imageUrl"
+                :src="imageUrl"
+                class="avatar"
+                alt="Avatar"
+              />
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+          </div>
+          <input type="hidden" v-model="registerForm.image" />
         </el-form-item>
         <!-- 用户名\性别 -->
         <el-row :gutter="20">
@@ -265,13 +271,15 @@ export default {
       password_type: "password", //密码显示类型
       imageUrl: "", //头像上传路径
       codeUrl: "",
-      loginForm: {//登录的表单数据
+      loginForm: {
+        //登录的表单数据
         name: "12345678909",
         phone: "12345678909",
         password: "123",
         code: "",
       },
-      registerForm: {//注册的表单数据
+      registerForm: {
+        //注册的表单数据
         name: "",
         sex: "",
         age: "",
@@ -304,35 +312,35 @@ export default {
     doLogin() {
       let url;
       let loginUrl;
-    switch (this.roleType) {
+      switch (this.roleType) {
         case "管理员":
-            url = "/manager/loginManager";
-            loginUrl = "/ManagerLayout";
-            break;
+          url = "/manager/loginManager";
+          loginUrl = "/ManagerLayout";
+          break;
         case "医生":
-            url = "/doctor/loginDoctor";
-            loginUrl = "/DoctorLayout";
-            break;
+          url = "/doctor/loginDoctor";
+          loginUrl = "/DoctorLayout";
+          break;
         case "用户":
-            url = "/user/loginUser";
-            loginUrl = "/Layout";
-            break;
+          url = "/user/loginUser";
+          loginUrl = "/Layout";
+          break;
         default:
-            this.$message.error("未知的角色类型");
-            return;
-    }
+          this.$message.error("未知的角色类型");
+          return;
+      }
       request
-      //
+        //
         .post(url, this.loginForm) //第一个参数是请求地址、第二个参数提交的数据
         //回调函数\获取服务器响应的结果
         .then((res) => {
           if (res.flag == true) {
             this.$message.success("登录成功！");
-            //把user信息、角色信息存放在cookie中  
+            //把user信息、角色信息存放在cookie中
             Cookies.set("user", JSON.stringify(res.user), { expires: 0.3 });
             Cookies.set("role", res.role, { expires: 0.3 });
             //通过路由跳转、登录成功后跳转到首页
-            router.push(loginUrl);//
+            router.push(loginUrl); //
           } else {
             //登录失败提示信息
             this.$message.error(res.message);
@@ -343,7 +351,7 @@ export default {
     registerSumbit() {
       //发起了异步请求
       request
-        .post("/user/register", this.registerForm)
+        .post("/user/insertUser", this.registerForm)
         //回调函数
         .then((res) => {
           if (res.flag == true) {
@@ -412,7 +420,7 @@ export default {
 }
 
 .login-form {
-  margin: 120px auto;
+  margin: 80px auto;
   background-image: url("../assets/beijing.png");
   border-radius: 45px;
   background-position: -35px, -35px;
@@ -464,13 +472,22 @@ input {
   height: 38px;
 }
 
+.avatar-container {
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  flex-direction: column; /* 垂直排列 */
+  height: 178px; /* 设置容器高度 */
+}
+
 .avatar-uploader .el-upload {
-  /* border: 1px dashed #d9d9d9; */
-  border: 1px solid black;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
+  border: 1px dashed #d9d9d9;
+  border-radius: 50%; /* 设置圆形边框 */
+  width: 178px; /* 设置宽度 */
+  height: 178px; /* 设置高度 */
+  display: flex;
+  justify-content: center; /* 中心对齐 */
+  align-items: center; /* 垂直对齐 */
 }
 .avatar-uploader .el-upload:hover {
   border-color: #409eff;
@@ -484,8 +501,9 @@ input {
   text-align: center;
 }
 .avatar {
-  width: 178px;
-  height: 178px;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
   display: block;
 }
 </style>

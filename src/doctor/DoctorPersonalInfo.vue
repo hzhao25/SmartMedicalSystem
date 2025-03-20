@@ -1,70 +1,63 @@
 <template>
-  <div>
-    <el-descriptions class="margin-top" title="用户信息" :column="2" border>
+  <div class="doctor-info-container">
+    <el-descriptions class="margin-top" title="医生信息" :column="2" border>
       <template #extra>
         <el-button type="primary" size="small">操作</el-button>
       </template>
-      <el-descriptions-item>
-        <template #label>
+      <el-descriptions-item label="姓名">
+        <template>
           <i class="el-icon-user"></i>
-          用户名
         </template>
         {{ name }}
       </el-descriptions-item>
-      <el-descriptions-item>
-        <template #label>
-          <i class="el-icon-user"></i>
-          性别
+      <el-descriptions-item label="专业">
+        <template>
+          <i class="el-icon-medical"></i>
         </template>
-        {{ sex }}
+        {{ major }}
       </el-descriptions-item>
-      <el-descriptions-item>
-        <template #label>
-          <i class="el-icon-user"></i>
-          年龄
+      <el-descriptions-item label="毕业院校">
+        <template>
+          <i class="el-icon-school"></i>
         </template>
-        {{ age }}
+        {{ school }}
       </el-descriptions-item>
-      <el-descriptions-item>
-        <template #label>
+      <el-descriptions-item label="手机号">
+        <template>
           <i class="el-icon-mobile-phone"></i>
-          手机号
         </template>
         {{ phone }}
       </el-descriptions-item>
-      <el-descriptions-item>
-        <template #label>
-          <i class="el-icon-mobile-phone"></i>
-          身份证
+      <el-descriptions-item label="科室编号">
+        <template>
+          <i class="el-icon-hospital"></i>
         </template>
-        {{ codeid }}
+        {{ department_id }}
       </el-descriptions-item>
-      <el-descriptions-item>
-        <template #label>
-          <i class="el-icon-location-outline"></i>
-          居住地
+      <el-descriptions-item label="所属医院编号">
+        <template>
+          <i class="el-icon-hospital"></i>
         </template>
-        {{ address }}
+        {{ host_id }}
       </el-descriptions-item>
-      <el-descriptions-item>
-        <template #label>
+      <el-descriptions-item label="等待接诊">
+        <template>
+          <i class="el-icon-time"></i>
+        </template>
+        {{ wait_nums }}
+      </el-descriptions-item>
+      <el-descriptions-item label="状态"> 
+        <template>
           <i class="el-icon-tickets"></i>
-          状态
         </template>
-        <el-tag size="small">{{ status }}</el-tag>
+        <el-tag size="small">{{ statusText }}</el-tag>
       </el-descriptions-item>
-      <!-- 通行码 -->
-      <el-descriptions-item>
-        <template #label>
-          <i class="el-icon-tickets"></i>
-          通信码
+      <el-descriptions-item label="头像">
+        <template>
+          <i class="el-icon-picture"></i>
         </template>
-        <el-image
-          style="width: 100px; height: 100px"
-          :src="qrImage"
-        ></el-image>
+        <el-image class="doctor-image" :src="imageUrl"></el-image>
       </el-descriptions-item>
-      <!-- 通行码 -->
     </el-descriptions>
   </div>
 </template>
@@ -75,41 +68,74 @@ import Cookies from "js-cookie";
 export default {
   data() {
     return {
-      size: "",
-      // user的信息
+      // doctor的信息
       name: "",
-      qrImage:"",
-      sex: "",
-      age: "",
-      codeid: "",
+      major: "",
+      school: "",
       phone: "",
-      address: "",
-      qrcode: "",
-      status: "",
+      department_id: 0,
+      host_id: 0,
+      wait_nums: 0,
+      status: 0,
+      imageUrl: "",
     };
   },
-  // 当vue对象创建后，触发操作
   created() {
-    // 获取登录用户信息
-    var userJson = JSON.parse(Cookies.get("user"));
-    // 赋值到data中
-    this.name = userJson.name;
-    this.sex = userJson.sex;
-    this.age = userJson.age;
-    this.codeid = userJson.codeid;
-    this.qrImage='http://localhost:8088/user/code?userid='+userJson.id;
-    this.phone = userJson.phone;
-    this.address = userJson.address;
-    this.qrcode = userJson.qrcode;
-    this.status = userJson.status;
-    this.role = Cookies.get("role");
+    var doctorJson = JSON.parse(Cookies.get("user")); // Assume doctor info is stored in cookies
+    this.name = doctorJson.name;
+    this.major = doctorJson.major;
+    this.school = doctorJson.school;
+    this.phone = doctorJson.phone;
+    this.department_id = doctorJson.departmentId;
+    console.log(doctorJson)
+    this.host_id = doctorJson.hostId;
+    this.wait_nums = doctorJson.waitNums;
+    this.status = doctorJson.status;
+    this.imageUrl = doctorJson.image; // Assuming image URL is stored in doctorJson
+  },
+  computed: {
+    statusText() {
+      switch (this.status) {
+        case 1:
+          return "在职";
+        case 2:
+          return "休假";
+        case 3:
+          return "离职";
+        default:
+          return "未知状态";
+      }
+    },
   },
 };
 </script>
-<style>
-.el-descriptions-item__label {
-  background-color: black;
-  color: white; /* 文字颜色设置为白色，以便在黑色背景下可见 */
-  padding: 5px; /* 添加内边距，让内容与边框有一定间距 */
+
+<style scoped>
+.doctor-info-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.margin-top {
+  margin-top: 20px;
+}
+
+.el-descriptions {
+  font-size: 14px;
+}
+
+.el-descriptions-item {
+  padding: 10px 0;
+}
+
+.doctor-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 </style>
