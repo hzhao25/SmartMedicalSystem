@@ -32,7 +32,7 @@
         <el-form-item>
           <el-button
             type="primary"
-            @click="selectPage"
+            @click="queryParams"
             style="background-color: #254175"
             >查询</el-button
           >
@@ -194,6 +194,7 @@ export default {
   created() {
     if (Cookies.get("user")) {
       this.role = Cookies.get("role");
+      this.role = Cookies.get("role");
     }
     this.selectPage();
   },
@@ -313,7 +314,25 @@ export default {
     selectPage() {
       request
         .get("/department/queryAll", {
-          params: {},
+          params: {
+          },
+        })
+        .then((res) => {
+          if (res.flag == false) {
+            this.$message.error(res.message);
+          } else {
+            this.$message.success("查询成功");
+            this.tableData = res.list;
+          }
+        });
+    },
+    queryParams(){
+      request
+        .get("/department/queryParams", {
+          params: {
+            name:this.name,
+            status:this.status
+          },
         })
         .then((res) => {
           if (res.flag == false) {

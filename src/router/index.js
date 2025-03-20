@@ -16,6 +16,8 @@ import HospitalList from '@/hospital/HostList.vue'
 import PostsList from '@/posts/PostsList.vue'
 import RegistrationList from '@/registration/RegistrationList.vue'
 import UserRegis from '@/user/UserRegis.vue'
+import RegistList from '@/user/RegistList.vue'
+import UserList from '@/user/UserList.vue'
 import ManagerList from '@/manager/ManagerList.vue'
 import VaccineRecord from '@/vaccineRecord/VaccineRecord.vue'
 Vue.use(VueRouter)
@@ -61,6 +63,15 @@ const router=new VueRouter({
                     path:'appVaccineList',
                     name:'appVaccineList',
                     component: appVaccineList
+                },
+                {
+                    path:'hospitalList',
+                    component: HospitalList
+                },
+                {
+                    path:'RegistList',
+                    name:'RegistList',
+                    component: RegistList
                 },
             ]
         },
@@ -168,10 +179,6 @@ const router=new VueRouter({
                     path:'registrationList',
                     component:RegistrationList
                 },
-                {
-                    path:'vaccineRecord',
-                    component:VaccineRecord
-                }
             ]
         },
         {

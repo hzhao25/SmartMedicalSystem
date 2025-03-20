@@ -1,70 +1,57 @@
 <template>
-  <div>
+  <div class="user-info-container">
     <el-descriptions class="margin-top" title="用户信息" :column="2" border>
       <template #extra>
         <el-button type="primary" size="small">操作</el-button>
       </template>
-      <el-descriptions-item>
-        <template #label>
+      <el-descriptions-item label="用户名">
+        <template>
           <i class="el-icon-user"></i>
-          用户名
         </template>
         {{ name }}
       </el-descriptions-item>
-      <el-descriptions-item>
-        <template #label>
-          <i class="el-icon-user"></i>
-          性别
+      <el-descriptions-item label="性别">
+        <template>
+          <i class="el-icon-gender"></i>
         </template>
         {{ sex }}
       </el-descriptions-item>
-      <el-descriptions-item>
-        <template #label>
-          <i class="el-icon-user"></i>
-          年龄
+      <el-descriptions-item label="年龄">
+        <template >
+          <i class="el-icon-age"></i>
         </template>
         {{ age }}
       </el-descriptions-item>
-      <el-descriptions-item>
-        <template #label>
+      <el-descriptions-item label="手机号">
+        <template>
           <i class="el-icon-mobile-phone"></i>
-          手机号
         </template>
         {{ phone }}
       </el-descriptions-item>
-      <el-descriptions-item>
-        <template #label>
-          <i class="el-icon-mobile-phone"></i>
-          身份证
+      <el-descriptions-item label="身份证">
+        <template>
+          <i class="el-icon-codeid"></i>
         </template>
         {{ codeid }}
       </el-descriptions-item>
-      <el-descriptions-item>
-        <template #label>
+      <el-descriptions-item label="居住地">
+        <template>
           <i class="el-icon-location-outline"></i>
-          居住地
         </template>
         {{ address }}
       </el-descriptions-item>
-      <el-descriptions-item>
-        <template #label>
-          <i class="el-icon-tickets"></i>
-          状态
+      <el-descriptions-item label="状态"> 
+        <template>
+          <i class="el-icon-tickets">状态</i>
         </template>
-        <el-tag size="small">{{ status }}</el-tag>
+        <el-tag size="small">{{ statusText }}</el-tag>
       </el-descriptions-item>
-      <!-- 通行码 -->
-      <el-descriptions-item>
-        <template #label>
+      <el-descriptions-item label="通信码">
+        <template>
           <i class="el-icon-tickets"></i>
-          通信码
         </template>
-        <el-image
-          style="width: 100px; height: 100px"
-          :src="qrImage"
-        ></el-image>
+        <el-image class="qr-image" :src="qrImage"></el-image>
       </el-descriptions-item>
-      <!-- 通行码 -->
     </el-descriptions>
   </div>
 </template>
@@ -75,10 +62,9 @@ import Cookies from "js-cookie";
 export default {
   data() {
     return {
-      size: "",
       // user的信息
       name: "",
-      qrImage:"",
+      qrImage: "",
       sex: "",
       age: "",
       codeid: "",
@@ -88,21 +74,61 @@ export default {
       status: "",
     };
   },
-  // 当vue对象创建后，触发操作
   created() {
-    // 获取登录用户信息
     var userJson = JSON.parse(Cookies.get("user"));
-    // 赋值到data中
     this.name = userJson.name;
     this.sex = userJson.sex;
     this.age = userJson.age;
     this.codeid = userJson.codeid;
-    this.qrImage='http://localhost:8088/user/code?userid='+userJson.id;
+    this.qrImage = "http://localhost:8088/user/code?userid=" + userJson.id;
     this.phone = userJson.phone;
     this.address = userJson.address;
     this.qrcode = userJson.qrcode;
     this.status = userJson.status;
-    this.role = Cookies.get("role");
+  },
+  computed: {
+    statusText() {
+      switch (this.status) {
+        case 1:
+          return "绿码";
+        case 2:
+          return "黄码";
+        case 3:
+          return "红码";
+        default:
+          return "未知状态";
+      }
+    },
   },
 };
 </script>
+
+<style scoped>
+.user-info-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.margin-top {
+  margin-top: 20px;
+}
+
+.el-descriptions {
+  font-size: 14px;
+}
+
+.el-descriptions-item {
+  padding: 10px 0;
+}
+
+.qr-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+</style>

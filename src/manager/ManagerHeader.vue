@@ -36,8 +36,8 @@
         </span>
 
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="a" v-if="role !== 'manager'"
-            >个人信息</el-dropdown-item
+          <el-dropdown-item command="a">
+            个人信息</el-dropdown-item
           >
           <el-dropdown-item command="b">退出系统</el-dropdown-item>
         </el-dropdown-menu>

@@ -24,7 +24,7 @@
           <el-input v-model="phone" placeholder="请输入手机号"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-select v-model="hosId" placeholder="请选择医院">
+          <el-select v-model="hosId" placeholder="请选择医院" @change="onHospitalChange">
             <!-- <el-option :value="''"></el-option> -->
             <el-option
               v-for="item in hos_options"
@@ -35,7 +35,7 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-select v-model="deptId" placeholder="请选择部门">
+          <el-select v-model="deptId" placeholder="请选择部门" @change="onDeptChange">
             <!-- <el-option :value="''"></el-option> -->
             <el-option
               v-for="item in dept_options"
@@ -48,7 +48,7 @@
         <el-form-item>
           <el-button
             type="primary"
-            @click="selectPage"
+            @click="queryParams"
             style="background-color: #254175"
             >查询</el-button
           >
@@ -420,8 +420,9 @@ export default {
     selectPage() {
       //发送请求
       request
-        .get("/doctor/queryAll", {
-          params: {},
+        .get("/doctorView/queryAll", {
+          params: {
+          },
         })
         .then((res) => {
           //处理响应
@@ -434,7 +435,61 @@ export default {
             this.tableData = res.list;
           }
         });
+      //查询医院
+      request
+          .get("/hospital/queryAll", {
+            params: {},
+          })
+          .then((res) => {
+            //处理响应
+            if (res.flag == false) {
+              this.$message.error(res.message);
+            } else {
+              this.hos_options = res.list;
+            }
+          });
+      //查询科室
+      request
+        .get("/department/queryAll", {
+          params: {},
+        })
+        .then((res) => {
+          //处理响应
+          if (res.flag == false) {
+            this.$message.error(res.message);
+          } else {
+            this.dept_options = res.list;
+          }
+        });
     },
+    onHospitalChange(value) {
+      this.hosId = value; // 将选中的医院ID赋值给 hosId
+    },
+    onDeptChange(value) {
+      this.hosId = value; // 将选中的医院ID赋值给 hosId
+    },
+    queryParams(){
+      request
+        .get("/doctorView/queryParams", {
+          params: {
+            name: this.name,          // 医生姓名
+            phone: this.phone,        // 电话
+            hosId: this.hosId,        // 医院ID
+            deptId: this.deptId       // 部门ID
+          },
+        })
+        .then((res) => {
+          //处理响应
+          if (res.flag == false) {
+            //查询失败
+            this.$message.error(res.message);
+          } else {
+            this.$message.success("查询成功");
+            //将查询到的数据赋值到当前tableData中
+            this.tableData = res.list;
+          }
+        });
+    }
 
     // 更新医生状态的方法
     updateStatus(row) {
